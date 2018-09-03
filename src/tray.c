@@ -97,7 +97,6 @@ toggle_window()
 	if (gtk_widget_get_visible(GTK_WIDGET(on_icon.evo_window))) {
 		gtk_widget_hide(GTK_WIDGET(on_icon.evo_window));
 	} else {
-		gtk_widget_show(GTK_WIDGET(on_icon.evo_window));
 		gtkut_window_popup(GTK_WIDGET(on_icon.evo_window));
 	}
 
