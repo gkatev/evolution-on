@@ -64,9 +64,6 @@ static gulong show_window_handle = 0;
 static gboolean show_window_cb_called = FALSE;
 struct OnIcon on_icon = ONICON_NEW;
 
-gboolean
-on_quit_requested(EShell *shell, EShellQuitReason reason, gpointer user_data);
-
 void
 gtkut_window_popup(GtkWidget *window)
 {
@@ -423,21 +420,20 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 }
 
 gboolean
-on_quit_requested(EShell *shell, EShellQuitReason reason, gpointer user_data)
+on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
 {
-	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE)
-			&& (reason == E_SHELL_QUIT_LAST_WINDOW)) {
-		e_shell_cancel_quit(e_shell_get_default());
+	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE)) {
 #ifdef HAVE_LIBAPPINDICATOR
-	GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
-	GList *items = gtk_container_get_children(GTK_CONTAINER(menu));
-	GtkWidget *item = g_list_nth_data(items, 0);
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), FALSE);
+		GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
+		GList *items = gtk_container_get_children(GTK_CONTAINER(menu));
+		GtkWidget *item = g_list_nth_data(items, 0);
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), FALSE);
 #else /* !HAVE_LIBAPPINDICATOR */
 		on_icon.toggle_window_func();
 #endif /* HAVE_LIBAPPINDICATOR */
+		return TRUE; // we've handled it
 	}
-	return TRUE;
+	return FALSE;
 }
 
 gboolean
@@ -451,8 +447,8 @@ e_plugin_ui_init(GtkUIManager *ui_manager, EShellView *shell_view)
 	g_signal_connect(G_OBJECT(on_icon.evo_window), "window-state-event",
 			G_CALLBACK(window_state_event), NULL);
 
-	g_signal_connect(G_OBJECT(e_shell_get_default()), "quit-requested",
-			G_CALLBACK(on_quit_requested), NULL);
+	g_signal_connect(G_OBJECT(on_icon.evo_window), "delete-event",
+            G_CALLBACK(on_widget_deleted), NULL);
 
 	if (!on_icon.quit_func)
 		create_icon(&on_icon, do_properties, do_quit, toggle_window);
