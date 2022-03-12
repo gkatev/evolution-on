@@ -106,6 +106,7 @@ struct _SoundNotifyData {
 static void
 do_play_sound(gboolean beep, gboolean use_theme, const gchar *file)
 {
+	GdkDisplay *display;
 	if (!beep) {
 #ifdef HAVE_CANBERRA
 		if (!use_theme && file && *file) {
@@ -119,8 +120,9 @@ do_play_sound(gboolean beep, gboolean use_theme, const gchar *file)
 		}
 #endif
 	} else {
-		if (gdk_display_get_default != NULL){
-			gdk_display_beep(gdk_display_get_default);
+		display = gdk_display_get_default();
+		if (display != NULL){
+			gdk_display_beep(display);
 		}
 	}
 }
