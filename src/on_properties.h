@@ -228,7 +228,10 @@ get_config_widget_sound()
 	scw->enable = widget;
 	gtk_widget_set_halign(widget, GTK_ALIGN_START);
 	gtk_widget_set_valign(widget, GTK_ALIGN_END);
-	gtk_alignment_set_padding(GTK_ALIGNMENT(widget), 0, 0, 12, 0);
+	gtk_widget_set_margin_top(widget, 0);
+	gtk_widget_set_margin_bottom(widget, 0);
+	gtk_widget_set_margin_start(widget, 12);
+	gtk_widget_set_margin_end(widget, 0);
 	gtk_box_pack_start(GTK_BOX (container), widget, FALSE, FALSE, 0);
 	gtk_widget_show(widget);
 
