@@ -119,7 +119,9 @@ do_play_sound(gboolean beep, gboolean use_theme, const gchar *file)
 		}
 #endif
 	} else {
-		gdk_beep();
+		if (gdk_display_get_default != NULL){
+			gdk_display_beep(gdk_display_get_default);
+		}
 	}
 }
 
