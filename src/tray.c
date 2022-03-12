@@ -25,24 +25,13 @@
 #include <glib/gi18n.h>
 #include <string.h>
 
-#if EVOLUTION_VERSION < 30704
-#include <e-util/e-config.h>
-#include <e-util/e-plugin.h>
-#include <e-util/e-icon-factory.h>
-#else
 #include <e-util/e-util.h>
-#endif
 
 #include <shell/e-shell.h>
 #include <shell/e-shell-view.h>
 #include <shell/e-shell-window.h>
 
-#if EVOLUTION_VERSION < 31192
-#include <libemail-engine/e-mail-folder-utils.h>
-#include <libemail-engine/mail-ops.h>
-#else
 #include <libemail-engine/libemail-engine.h>
-#endif
 
 #include <mail/em-event.h>
 #include <mail/em-folder-tree.h>
