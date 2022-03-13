@@ -1,4 +1,4 @@
-AC_INIT([evolution-on], [3.24.2], [https://github.com/KostadinAtanasov/evolution-on])
+AC_INIT([evolution-on], [3.24.3], [https://github.com/KostadinAtanasov/evolution-on])
 AC_CONFIG_SRCDIR(src)
 
 AM_INIT_AUTOMAKE
@@ -21,7 +21,6 @@ AC_HEADER_STDC
 AM_DISABLE_STATIC
 AM_PROG_LIBTOOL
 
-GNOME_COMPILE_WARNINGS
 EVOLUTION_INIT
 
 dnl base packages and versions
