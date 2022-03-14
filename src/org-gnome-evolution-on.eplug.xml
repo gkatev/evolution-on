@@ -10,6 +10,7 @@
 	<_description>Support for controling Evolution from system tray</_description>
 	<author name="Lucian Langa" email="lucilanga@gnome.org"/>
 	<author name="Kostadin Atanasov" email="pranayama111@gmail.com"/>
+	<author name="Ozan Türkyılmaz" emaiil="ozan.turkyilmaz@gmail.com"/>
 
 	<hook class="org.gnome.evolution.ui:1.0">
 		<ui-manager id="org.gnome.evolution.mail">
