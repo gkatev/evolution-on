@@ -27,6 +27,10 @@
 #include <glib/gi18n.h>
 #include <string.h>
 
+#ifndef G_OS_WIN32
+#include <gdk/gdkx.h> 
+#endif
+
 #include <e-util/e-util.h>
 
 #include <shell/e-shell.h>
