@@ -121,7 +121,7 @@ do_quit(GtkMenuItem *item, gpointer user_data)
 static void
 do_properties(GtkMenuItem *item, gpointer user_data)
 {
-	GtkWidget *cfg, *ocfg, *dialog, *vbox, *label, *hbox;
+	GtkWidget *cfg, *ocfg, *dialog, *label, *vbox, *hbox;
 	GtkWidget *content_area;
 	gchar *text;
 
@@ -137,7 +137,8 @@ do_properties(GtkMenuItem *item, gpointer user_data)
 
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
 	label = gtk_label_new(NULL);
-	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+	gtk_label_set_yalign(GTK_LABEL(label), 0.5);
 	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
 	gtk_label_set_markup(GTK_LABEL(label), text);
 	g_free (text);
