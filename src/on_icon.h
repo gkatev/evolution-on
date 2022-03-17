@@ -224,7 +224,7 @@ create_popup_menu(struct OnIcon *_onicon)
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	gtk_widget_show(item);
 
-	item = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, NULL);
+	item = gtk_image_menu_item_new_from_stock("application-exit", NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	gtk_widget_show(item);
 	g_signal_connect(item, "activate",
