@@ -74,6 +74,8 @@ gtkut_window_popup(GtkWidget *window)
 	display = gdk_display_get_default();
 	monitor = gdk_display_get_monitor(display, 0);
 	gdk_monitor_get_geometry(monitor, geometry);
+	g_return_if_fail(geometry != NULL);
+	
 	sx = geometry->width;
 	sy = geometry->height;
 	
