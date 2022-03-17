@@ -204,7 +204,7 @@ shown_window_cb(GtkWidget *widget, gpointer user_data)
 	}
 }
 
-static GStaticMutex mlock = G_STATIC_MUTEX_INIT;
+static GMutex mlock;
 
 #ifdef HAVE_LIBNOTIFY
 /* Function to check if actions are supported by the notification daemon */
