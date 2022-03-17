@@ -134,7 +134,7 @@ sound_file_set_cb(GtkWidget *widget, gpointer data)
 	gchar *file;
 	GSettings *settings;
 	g_return_if_fail(widget != NULL);
-	settings = g_settings_new("NOTIF_SCHEMA");
+	settings = g_settings_new(NOTIF_SCHEMA);
 	file = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (widget));
 	g_settings_set_string(settings, CONF_KEY_SOUND_FILE, file ? file : "");
 	g_object_unref(settings);
@@ -163,7 +163,7 @@ sound_notify_idle_cb(gpointer user_data)
 	GSettings *settings;
 	struct _SoundNotifyData *data =(struct _SoundNotifyData*)user_data;
 	g_return_val_if_fail(data != NULL, FALSE);
-	settings = g_settings_new("NOTIF_SCHEMA");
+	settings = g_settings_new(NOTIF_SCHEMA);
 	file = g_settings_get_string(settings, CONF_KEY_SOUND_FILE);
 	do_play_sound(is_part_enabled(NOTIF_SCHEMA, CONF_KEY_SOUND_BEEP),
 			is_part_enabled(NOTIF_SCHEMA, CONF_KEY_SOUND_USE_THEME),
@@ -185,7 +185,7 @@ get_config_widget_status()
 	GtkWidget *widget;
 	GSettings *settings;
 	const gchar *text;
-	settings = g_settings_new("NOTIF_SCHEMA");
+	settings = g_settings_new(NOTIF_SCHEMA);
 	text = _("Popup _message together with the icon");
 	widget = gtk_check_button_new_with_mnemonic(text);
 	gtk_widget_show(widget);
@@ -210,7 +210,7 @@ get_config_widget_sound()
 	struct _SoundConfigureWidgets *scw;
 	const gchar *text;
 
-	settings = g_settings_new("NOTIF_SCHEMA");
+	settings = g_settings_new(NOTIF_SCHEMA);
 	scw = g_malloc0(sizeof(struct _SoundConfigureWidgets));
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
 	gtk_widget_show(vbox);
@@ -320,7 +320,7 @@ get_original_cfg_widget()
 	GSettings *settings;
 	const gchar *text;
 
-	settings = g_settings_new("NOTIF_SCHEMA");
+	settings = g_settings_new(NOTIF_SCHEMA);
 	widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
 
 	gtk_widget_show(widget);
