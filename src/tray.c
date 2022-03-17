@@ -59,12 +59,19 @@ void
 gtkut_window_popup(GtkWidget *window)
 {
 	gint x, y, sx, sy, new_x, new_y;
-
+	GdkDisplay *display;
+	GdkMonitor *monitor;
+	GdkRectangle *geometry;
+	
 	g_return_if_fail(window != NULL);
 	g_return_if_fail(gtk_widget_get_window(window) != NULL);
-
-	sx = gdk_screen_width();
-	sy = gdk_screen_height();
+	
+	display = gdk_display_get_default();
+	monitor = gdk_display_get_monitor(display, 0);
+	gdk_monitor_get_geometry(monitor, geometry);
+	sx = geometry->width;
+	sy = geometry->height;
+	
 	gdk_window_get_origin(gtk_widget_get_window(window), &x, &y);
 	new_x = x % sx; if (new_x < 0) new_x = 0;
 	new_y = y % sy; if (new_y < 0) new_y = 0;
