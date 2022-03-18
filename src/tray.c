@@ -60,6 +60,7 @@ static gulong show_window_handle = 0;
 static gboolean show_window_cb_called = FALSE;
 struct OnIcon on_icon = ONICON_NEW;
 
+/* Raise the window */
 void
 gtkut_window_popup(GtkWidget *window)
 {
@@ -71,6 +72,10 @@ gtkut_window_popup(GtkWidget *window)
 	g_return_if_fail(window != NULL);
 	g_return_if_fail(gtk_widget_get_window(window) != NULL);
 	
+	/* This will return NULL always as we rise the window, we don't actually
+	 * default display nor a monitor. We find a way to get this information
+	 * before we lower the window.
+	 */
 	display = gdk_display_get_default();
 	monitor = gdk_display_get_monitor(display, 0);
 	gdk_monitor_get_geometry(monitor, geometry);
@@ -124,6 +129,7 @@ notification_callback(gpointer data)
 }
 #endif
 
+/* Quit the evolution */
 static void
 do_quit(GtkMenuItem *item, gpointer user_data)
 {
@@ -132,6 +138,7 @@ do_quit(GtkMenuItem *item, gpointer user_data)
 	e_shell_quit(shell, E_SHELL_QUIT_ACTION);
 }
 
+/* Show and do properties of the plugin */
 static void
 do_properties(GtkMenuItem *item, gpointer user_data)
 {
@@ -185,6 +192,7 @@ do_properties(GtkMenuItem *item, gpointer user_data)
 	gtk_widget_show(dialog);
 }
 
+/* Show window when clicked on our icon */
 static void
 shown_window_cb(GtkWidget *widget, gpointer user_data)
 {
@@ -248,7 +256,7 @@ can_support_actions()
 	return supports_actions;
 }
 #endif
-
+/* New email notification */
 static void
 new_notify_status(EMEventTargetFolder *t, struct OnIcon *_onicon)
 {
@@ -363,14 +371,14 @@ new_notify_status(EMEventTargetFolder *t, struct OnIcon *_onicon)
 
 	g_free(msg);
 }
-
+/* Start up and put our icon */
 void
 org_gnome_evolution_tray_startup(void *ep)
 {
 	if (!on_icon.quit_func)
 		create_icon(&on_icon, do_properties, do_quit, toggle_window);
 }
-
+/* Nofity based on folder changes */
 void
 org_gnome_evolution_on_folder_changed(EPlugin *ep, EMEventTargetFolder *t)
 {
@@ -381,7 +389,7 @@ org_gnome_evolution_on_folder_changed(EPlugin *ep, EMEventTargetFolder *t)
 	if (t->new > 0)
 		new_notify_status(t, &on_icon);
 }
-
+/* Mail read nofity */
 void
 org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t)
 {
@@ -402,7 +410,7 @@ org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t)
 #endif
 	}
 }
-
+/* Change window state */
 static gboolean
 window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 {
@@ -424,7 +432,7 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 	}
 	return FALSE;
 }
-
+/* Handle window deletion */
 gboolean
 on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
 {
