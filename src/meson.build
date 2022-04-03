@@ -1,0 +1,17 @@
+shared_library('liborg-gnome-evolution-on',
+	['tray.c',
+	'on_properties.h',
+	'on_icon.h'],
+	name_prefix: '',
+	dependencies: [
+		evolutionshell,
+		gtk,
+		glib,
+		libnotify,
+		libappindicator,
+		libgconfbridge,
+		evolutionmail,
+		libemailengine],
+	install_mode: 'rwxr-xr-x',
+	install: true,
+	install_dir: plugindir)

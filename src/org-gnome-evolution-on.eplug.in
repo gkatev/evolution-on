@@ -3,9 +3,9 @@
 <e-plugin
 	type="shlib"
 	id="org.gnome.evolution.plugin.evolution-on"
-	location="+PLUGIN_INSTALL_DIR+/liborg-gnome-evolution-on.so"
-	domain="+GETTEXT_PACKAGE+"
-	localedir="+LOCALEDIR+"
+	location="@PLUGIN_INSTALL_DIR@/liborg-gnome-evolution-on.so"
+	domain="@GETTEXT_PACKAGE@"
+	localedir="@LOCALEDIR@"
 	_name="Evolution On">
 	<_description>Support for controling Evolution from system tray</_description>
 	<author name="Lucian Langa" email="lucilanga@gnome.org"/>

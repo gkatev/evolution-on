@@ -21,8 +21,6 @@
 #include "config.h"
 #endif
 
-#define EDS_DISABLE_DEPRECATED
-
 #include <gtk/gtk.h>
 #include <glib.h>
 #include <glib/gi18n.h>
