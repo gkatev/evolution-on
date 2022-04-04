@@ -13,7 +13,7 @@ evolutionshell        = dependency('evolution-shell-3.0',       version: '>=3.6.
 gtk                   = dependency('gtk+-3.0',                  version: '>=3.6.0')
 glib                  = dependency('glib-2.0')
 libnotify             = dependency('libnotify',                 version: '>=0.5.1', required : false)
-libappindicator       = dependency('libappindicator',                               required : false)
+libappindicator       = dependency('appindicator-0.1',                              required : false)
 libgconfbridge        = dependency('libgconf-bridge',                               required : false)
 evolutionmail         = dependency('evolution-mail-3.0',        version: '>=3.6.0')
 libemailengine        = dependency('libemail-engine',           version: '>=3.6.0')
