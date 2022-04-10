@@ -62,6 +62,8 @@ static gulong show_window_handle = 0;
 static gboolean show_window_cb_called = FALSE;
 struct OnIcon on_icon = ONICON_NEW;
 
+static gint sx, sy;
+
 /* Raise the window */
 void
 gtkut_window_popup(GtkWidget *window)
@@ -69,10 +71,7 @@ gtkut_window_popup(GtkWidget *window)
 #ifdef DEBUG
 	g_printf("Evolution-on: Founction call %s\n", __func__);
 #endif
-	gint x, y, sx, sy, new_x, new_y;
-	GdkDisplay *display;
-	GdkMonitor *monitor;
-	GdkRectangle *geometry;
+	gint x, y, new_x, new_y;
 	
 	g_return_if_fail(window != NULL);
 	g_return_if_fail(gtk_widget_get_window(window) != NULL);
@@ -81,13 +80,6 @@ gtkut_window_popup(GtkWidget *window)
 	 * default display nor a monitor. We find a way to get this information
 	 * before we lower the window.
 	 */
-	display = gdk_display_get_default();
-	monitor = gdk_display_get_monitor(display, 0);
-	gdk_monitor_get_geometry(monitor, geometry);
-	g_return_if_fail(geometry != NULL);
-	
-	sx = geometry->width;
-	sy = geometry->height;
 	
 	gdk_window_get_origin(gtk_widget_get_window(window), &x, &y);
 	new_x = x % sx; if (new_x < 0) new_x = 0;
@@ -497,6 +489,17 @@ e_plugin_ui_init(GtkUIManager *ui_manager, EShellView *shell_view)
 #ifdef DEBUG
 	g_printf("Evolution-on: Founction call %s\n", __func__);
 #endif
+	GdkDisplay *display;
+	GdkMonitor *monitor;
+	GdkRectangle geometry;
+	
+	display = gdk_display_get_default();
+	monitor = gdk_display_get_monitor(display, 0);
+	gdk_monitor_get_geometry(monitor, &geometry);
+	
+	sx = geometry.width;
+	sy = geometry.height;
+	
 	on_icon.evo_window = e_shell_view_get_shell_window(shell_view);
 
 	show_window_handle = g_signal_connect(G_OBJECT(on_icon.evo_window),
