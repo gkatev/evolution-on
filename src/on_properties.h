@@ -35,12 +35,19 @@
 #define CONF_KEY_ENABLED_SOUND			"notify-sound-enabled"
 #define CONF_KEY_STATUS_NOTIFICATION	"notify-status-notification"
 
+#ifdef DEBUG
+#include <glib/gprintf.h>
+#endif
+
 /******************************************************************************
  * Query dconf
  *****************************************************************************/
 static gboolean
 is_part_enabled(gchar *schema, const gchar *key)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	GSettings *settings = g_settings_new(schema);
 	gboolean res = g_settings_get_boolean(settings, key);
 	g_object_unref(settings);
@@ -50,6 +57,9 @@ is_part_enabled(gchar *schema, const gchar *key)
 static void
 set_part_enabled(gchar *schema, const gchar *key, gboolean enable)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	GSettings *settings = g_settings_new (schema);
 	g_settings_set_boolean (settings, key, enable);
 	g_object_unref (settings);
@@ -61,6 +71,9 @@ set_part_enabled(gchar *schema, const gchar *key, gboolean enable)
 static void
 toggled_hidden_on_startup_cb(GtkWidget *widget, gpointer data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP,
 			gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
@@ -69,6 +82,9 @@ toggled_hidden_on_startup_cb(GtkWidget *widget, gpointer data)
 static void
 toggled_hidde_on_minimize_cb(GtkWidget *widget, gpointer data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_MINIMIZE,
 			gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
@@ -77,6 +93,9 @@ toggled_hidde_on_minimize_cb(GtkWidget *widget, gpointer data)
 static void
 toggle_hidden_on_close_cb(GtkWidget *widget, gpointer data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE,
 			gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
@@ -107,6 +126,9 @@ struct _SoundNotifyData {
 static void
 do_play_sound(gboolean beep, gboolean use_theme, const gchar *file)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	GdkDisplay *display;
 	if (!beep) {
 #ifdef HAVE_CANBERRA
@@ -131,6 +153,9 @@ do_play_sound(gboolean beep, gboolean use_theme, const gchar *file)
 static void
 sound_file_set_cb(GtkWidget *widget, gpointer data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	gchar *file;
 	GSettings *settings;
 	g_return_if_fail(widget != NULL);
@@ -144,6 +169,9 @@ sound_file_set_cb(GtkWidget *widget, gpointer data)
 static void
 sound_play_cb(GtkWidget *widget, gpointer data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	struct _SoundConfigureWidgets *scw = (struct _SoundConfigureWidgets*)data;
 	gchar *file;
 	g_return_if_fail(data != NULL);
@@ -159,6 +187,9 @@ sound_play_cb(GtkWidget *widget, gpointer data)
 static gboolean
 sound_notify_idle_cb(gpointer user_data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	gchar *file;
 	GSettings *settings;
 	struct _SoundNotifyData *data =(struct _SoundNotifyData*)user_data;
@@ -181,6 +212,9 @@ sound_notify_idle_cb(gpointer user_data)
 static GtkWidget *
 get_config_widget_status()
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 #ifdef HAVE_LIBNOTIFY
 	GtkWidget *widget;
 	GSettings *settings;
@@ -200,6 +234,9 @@ get_config_widget_status()
 static GtkWidget *
 get_config_widget_sound()
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	GtkWidget *vbox;
 	GtkWidget *container;
 	GtkWidget *master;
@@ -315,6 +352,9 @@ get_config_widget_sound()
 static GtkWidget *
 get_original_cfg_widget()
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	GtkWidget *container;
 	GtkWidget *widget;
 	GSettings *settings;
@@ -357,6 +397,9 @@ get_original_cfg_widget()
 static GtkWidget *
 get_cfg_widget()
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	GtkWidget *container, *vbox, *check;
 	vbox = gtk_box_new (FALSE, 6);
 	gtk_widget_show (vbox);

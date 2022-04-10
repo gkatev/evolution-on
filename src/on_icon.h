@@ -21,6 +21,10 @@
 #ifndef EVOLUTION_ON_ON_ICON_H
 #define EVOLUTION_ON_ON_ICON_H
 
+#ifdef DEBUG
+#include <glib/gprintf.h>
+#endif
+
 typedef void (*do_properties_func)(GtkMenuItem*, gpointer);
 typedef void (*do_quit_func)(GtkMenuItem*, gpointer);
 typedef void (*do_toggle_window_func)();
@@ -74,6 +78,9 @@ create_popup_menu(struct OnIcon *_onicon);
 static void
 set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 #ifdef HAVE_LIBAPPINDICATOR
 	if (unread) {
 		app_indicator_set_status(_onicon->appindicator,
@@ -152,6 +159,9 @@ create_icon(struct OnIcon *_onicon,
 static void
 indicator_activated(GtkMenuItem *item, gpointer user_data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	struct OnIcon *_onicon = (struct OnIcon*)user_data;
 	if (!_onicon->external_shown) {
 		_onicon->toggle_window_func();
@@ -165,6 +175,9 @@ indicator_activated(GtkMenuItem *item, gpointer user_data)
 static void
 icon_activated(GtkStatusIcon *icon, gpointer user_data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	struct OnIcon *_onicon = (struct OnIcon*)user_data;
 	status_icon_activate_cb(_onicon);
 	gtk_status_icon_set_from_pixbuf (_onicon->icon,
@@ -177,6 +190,9 @@ static void
 popup_menu_status(GtkStatusIcon *status_icon, guint button,
 		guint activate_time, gpointer user_data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	struct OnIcon *_onicon = (struct OnIcon*)user_data;
 	GtkMenu *menu = create_popup_menu(_onicon);
 	gtk_menu_popup(GTK_MENU(menu),
@@ -190,6 +206,9 @@ popup_menu_status(GtkStatusIcon *status_icon, guint button,
 static gboolean
 button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	struct OnIcon *_onicon = (struct OnIcon*)data;
 	if (event->button != 1) {
 		return FALSE;
@@ -201,6 +220,9 @@ button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
 static GtkMenu *
 create_popup_menu(struct OnIcon *_onicon)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	GtkMenu *menu;
 	GtkWidget *item;
 
@@ -236,6 +258,9 @@ create_popup_menu(struct OnIcon *_onicon)
 static void
 status_icon_activate_cb(struct OnIcon *_onicon)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	EShell *shell;
 	GList *list;
 	GtkApplication *application;
@@ -278,6 +303,9 @@ status_icon_activate_cb(struct OnIcon *_onicon)
 static void
 remove_notification(struct OnIcon *_onicon)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 #ifdef HAVE_LIBNOTIFY
 	if (_onicon->notify)
 		notify_notification_close(_onicon->notify, NULL);

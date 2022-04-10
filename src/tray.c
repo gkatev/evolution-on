@@ -51,6 +51,10 @@
 #include <libappindicator/app-indicator.h>
 #endif
 
+#ifdef DEBUG
+#include <glib/gprintf.h>
+#endif
+
 #include "on_properties.h"
 #include "on_icon.h"
 
@@ -62,6 +66,9 @@ struct OnIcon on_icon = ONICON_NEW;
 void
 gtkut_window_popup(GtkWidget *window)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	gint x, y, sx, sy, new_x, new_y;
 	GdkDisplay *display;
 	GdkMonitor *monitor;
@@ -105,6 +112,9 @@ gtkut_window_popup(GtkWidget *window)
 static void
 toggle_window()
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	if (gtk_widget_get_visible(GTK_WIDGET(on_icon.evo_window))) {
 		gtk_widget_hide(GTK_WIDGET(on_icon.evo_window));
 	} else {
@@ -122,6 +132,9 @@ toggle_window()
 static gboolean
 notification_callback(gpointer data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	struct OnIcon *_onicon = (struct OnIcon*)data;
 	return !notify_notification_show(_onicon->notify, NULL);
 }
@@ -131,6 +144,9 @@ notification_callback(gpointer data)
 static void
 do_quit(GtkMenuItem *item, gpointer user_data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	EShell *shell;
 	shell = e_shell_get_default();
 	e_shell_quit(shell, E_SHELL_QUIT_ACTION);
@@ -140,6 +156,9 @@ do_quit(GtkMenuItem *item, gpointer user_data)
 static void
 do_properties(GtkMenuItem *item, gpointer user_data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	GtkWidget *cfg, *ocfg, *dialog, *label, *vbox, *hbox;
 	GtkWidget *content_area;
 	gchar *text;
@@ -194,6 +213,9 @@ do_properties(GtkMenuItem *item, gpointer user_data)
 static void
 shown_window_cb(GtkWidget *widget, gpointer user_data)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	if (!show_window_cb_called) {
 		if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP)) {
 #ifdef HAVE_LIBAPPINDICATOR
@@ -232,6 +254,9 @@ static GMutex mlock;
 static gboolean
 can_support_actions()
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	static gboolean supports_actions = FALSE;
 	static gboolean have_checked = FALSE;
 	if (!have_checked) {
@@ -258,6 +283,9 @@ can_support_actions()
 static void
 new_notify_status(EMEventTargetFolder *t, struct OnIcon *_onicon)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	gchar *msg;
 
 	EShell *shell = e_shell_get_default();
@@ -373,6 +401,9 @@ new_notify_status(EMEventTargetFolder *t, struct OnIcon *_onicon)
 void
 org_gnome_evolution_tray_startup(void *ep)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	if (!on_icon.quit_func)
 		create_icon(&on_icon, do_properties, do_quit, toggle_window);
 }
@@ -380,6 +411,9 @@ org_gnome_evolution_tray_startup(void *ep)
 void
 org_gnome_evolution_on_folder_changed(EPlugin *ep, EMEventTargetFolder *t)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	/* TODO:
 	 * try to update state according what is changed in the folder. Note -
 	 * getting the folder may block...
@@ -391,6 +425,9 @@ org_gnome_evolution_on_folder_changed(EPlugin *ep, EMEventTargetFolder *t)
 void
 org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	if (g_atomic_int_compare_and_exchange(&on_icon.status_count, 0, 0))
 		return;
 
@@ -412,6 +449,9 @@ org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t)
 static gboolean
 window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_MINIMIZE)
 			&& (event->changed_mask == GDK_WINDOW_STATE_ICONIFIED)) {
 
@@ -434,6 +474,9 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 gboolean
 on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE)) {
 #ifdef HAVE_LIBAPPINDICATOR
 		GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
@@ -451,6 +494,9 @@ on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
 gboolean
 e_plugin_ui_init(GtkUIManager *ui_manager, EShellView *shell_view)
 {
+#ifdef DEBUG
+	g_printf("Evolution-on: Founction call %s\n", __func__);
+#endif
 	on_icon.evo_window = e_shell_view_get_shell_window(shell_view);
 
 	show_window_handle = g_signal_connect(G_OBJECT(on_icon.evo_window),

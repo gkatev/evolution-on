@@ -27,6 +27,11 @@ if plugindir.version_compare('')
 	plugindir = join_paths(evolutionshell.get_variable(pkgconfig: 'privlibdir'), 'plugins')
 endif
 
+debugoption = get_option('debugbuild')
+if debugoption == true
+	add_project_arguments('-DDEBUG', language:'c')
+endif
+
 # GSettings starts here
 schemasoption = get_option('install-schemas')
 if schemasoption == true
