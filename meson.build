@@ -4,7 +4,6 @@ project('evolution-on','c',
 	license: 'GPL',
 	default_options: ['prefix=/usr'])
 
-add_project_arguments('-DGETTEXT_PACKAGE="intltest"', language:'c')
 add_project_arguments('-DHAVE_CONFIG_H', language:'c')
 add_project_arguments('-I.', language:'c')
 
