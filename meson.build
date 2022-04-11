@@ -79,7 +79,7 @@ else
 
 endif
 
-if libnotify.found()
+if libnotify.found() and not libappindicator.found()
 	conf_data.set('HAVE_LIBNOTIFY', true)
 	libnotifyversion = libnotify.version()
 	libnotifyversion = libnotifyversion.replace ('.','')
