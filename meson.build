@@ -22,7 +22,7 @@ LIB_INSTALL_DIR      = join_paths(get_option('prefix'), 'lib')
 SHARE_INSTALL_PREFIX = join_paths(get_option('prefix'), 'share')
 plugindir = evolutionshell.get_variable(pkgconfig: 'plugindir')
 
-if plugindir.version_compare('')
+if plugindir == ''
 	plugindir = join_paths(evolutionshell.get_variable(pkgconfig: 'privlibdir'), 'plugins')
 endif
 
@@ -65,9 +65,23 @@ conf_data.set('PLUGIN_INSTALL_DIR', plugindir)
 conf_data.set('GETTEXT_PACKAGE', meson.project_name())
 conf_data.set('LOCALEDIR', join_paths(SHARE_INSTALL_PREFIX, 'locale'))
 
+uselibnotify = get_option('use-libnotify')
+
 if libappindicator.found() and libnotify.found()
 # If we got both, we prefer libappindicator as that is what probably user wants to use anyway
+# Unless user used use-libnotify=true instead
+	if uselibnotify == true
+		#So We go for libnotify instead of appindicator
+		conf_data.set('HAVE_LIBNOTIFY', true)
+		libnotifyversion = libnotify.version()
+		libnotifyversion = libnotifyversion.replace ('.','')
+		libnotifyversion_int = libnotifyversion.to_int() 
+		libnotifyversion_int = libnotifyversion_int * 100
+		conf_data.set('LIBNOTIFY_VERSION', libnotifyversion_int)
+	else
+	#Otherwise use appindicator
 	conf_data.set('HAVE_LIBAPPINDICATOR', true)
+	endif
 else
 # Otherwise just use libnotify
 	conf_data.set('HAVE_LIBNOTIFY', true)

@@ -1,3 +1,4 @@
 option('install-schemas', type: 'boolean', value: false, description: 'Install GSettings schema')
 option('install-gconf', type: 'boolean', value: false, description: 'Install GConf schema')
 option('debugbuild',type: 'boolean', value: false, description: 'Create a debug build')
+option('use-libnotify', type: 'boolean', value: false, description: 'Prefer libnotify over libappindicator')
