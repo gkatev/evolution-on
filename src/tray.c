@@ -441,12 +441,20 @@ org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t)
 static gboolean
 window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 {
+	gint x, y; /* to save window position */
 #ifdef DEBUG
 	g_printf("Evolution-on: Founction call %s\n", __func__);
 #endif
 	if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_MINIMIZE)
 			&& (event->changed_mask == GDK_WINDOW_STATE_ICONIFIED)) {
-
+		/* GTK documentation says that it is not rediable way to save 
+		 * and restore window postion and we should use the native windowing
+		 * APIs instead. However, I am not digging into xlib yet.*/
+		 gtk_window_get_position(GTK_WINDOW(widget), &x, &y);
+#ifdef DEBUG
+		g_printf("Evolution-on: Window Positions: x:%i y:%i\n", x, y);
+#endif
+		gtk_window_set_default_size(GTK_WINDOW(widget), x, y);
 		if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) {
 #ifdef HAVE_LIBAPPINDICATOR
 			GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
