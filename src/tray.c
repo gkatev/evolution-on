@@ -43,10 +43,6 @@
 
 #include <mail/e-mail-reader.h>
 
-#ifdef HAVE_LIBNOTIFY
-#include <libnotify/notify.h>
-#endif
-
 #ifdef HAVE_LIBAPPINDICATOR
 #include <libappindicator/app-indicator.h>
 #endif
@@ -119,18 +115,6 @@ toggle_window()
 		on_icon.winnotify = FALSE;
 	}
 }
-
-#ifdef HAVE_LIBNOTIFY
-static gboolean
-notification_callback(gpointer data)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
-#endif
-	struct OnIcon *_onicon = (struct OnIcon*)data;
-	return !notify_notification_show(_onicon->notify, NULL);
-}
-#endif
 
 /* Quit the evolution */
 static void
@@ -241,36 +225,6 @@ shown_window_cb(GtkWidget *widget, gpointer user_data)
 
 static GMutex mlock;
 
-#ifdef HAVE_LIBNOTIFY
-/* Function to check if actions are supported by the notification daemon */
-static gboolean
-can_support_actions()
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
-#endif
-	static gboolean supports_actions = FALSE;
-	static gboolean have_checked = FALSE;
-	if (!have_checked) {
-		GList *caps = NULL;
-		GList *c;
-		have_checked = TRUE;
-		caps = notify_get_server_caps();
-		if (caps != NULL) {
-			for (c = caps; c != NULL; c = c->next) {
-				if (strcmp((gchar *)c->data, "actions") == 0) {
-					supports_actions = TRUE;
-					break;
-				}
-			}
-		}
-
-		g_list_foreach(caps, (GFunc)g_free, NULL);
-		g_list_free(caps);
-	}
-	return supports_actions;
-}
-#endif
 /* New email notification */
 static void
 new_notify_status(EMEventTargetFolder *t, struct OnIcon *_onicon)
@@ -353,38 +307,6 @@ new_notify_status(EMEventTargetFolder *t, struct OnIcon *_onicon)
 
 	set_icon(_onicon, TRUE, msg);
 
-#ifdef HAVE_LIBNOTIFY
-	/* Now check whether we're supposed to send notifications */
-	if (is_part_enabled(NOTIF_SCHEMA, CONF_KEY_STATUS_NOTIFICATION)) {
-		gchar *safetext;
-
-		safetext = g_markup_escape_text(msg, strlen(msg));
-		//don't let the notification pile-up on the notification tray
-		if (_onicon->notify)
-			notify_notification_close(_onicon->notify, NULL);
-		if (!notify_init("evolution-mail-notification"))
-			fprintf(stderr,"notify init error");
-
-#if (LIBNOTIFY_VERSION < 7000)
-		_onicon->notify  = notify_notification_new(_("New email"), safetext,
-				"mail-unread", NULL);
-		notify_notification_attach_to_status_icon(_onicon->notify, tray_icon);
-#else /* !(LIBNOTIFY_VERSION < 7000) */
-		_onicon->notify  = notify_notification_new(_("New email"), safetext,
-				"mail-unread");
-#endif /* (LIBNOTIFY_VERSION < 7000) */
-
-		/* Check if actions are supported */
-		if (can_support_actions()) {
-			notify_notification_set_urgency(_onicon->notify,
-					NOTIFY_URGENCY_NORMAL);
-			notify_notification_set_timeout(_onicon->notify,
-					NOTIFY_EXPIRES_DEFAULT);
-			g_timeout_add(500, notification_callback, &on_icon);
-		}
-		g_free(safetext);
-	}
-#endif /* HAVE_LIBNOTIFY */
 	_onicon->winnotify = TRUE;
 
 	g_free(msg);
@@ -442,6 +364,8 @@ static gboolean
 window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 {
 	gint x, y; /* to save window position */
+	gint width, height; /* to save window size */
+	
 #ifdef DEBUG
 	g_printf("Evolution-on: Founction call %s\n", __func__);
 #endif
@@ -451,10 +375,12 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 		 * and restore window postion and we should use the native windowing
 		 * APIs instead. However, I am not digging into xlib yet.*/
 		 gtk_window_get_position(GTK_WINDOW(widget), &x, &y);
+		 gtk_window_get_size(GTK_WINDOW(widget), &width, &height);
 #ifdef DEBUG
 		g_printf("Evolution-on: Window Positions: x:%i y:%i\n", x, y);
+		g_printf("Evolution-on: Window Sizes: width:%i height:%i\n", width, height);
 #endif
-		gtk_window_set_default_size(GTK_WINDOW(widget), x, y);
+		gtk_window_set_default_size(GTK_WINDOW(widget), width, height);
 		if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) {
 #ifdef HAVE_LIBAPPINDICATOR
 			GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
@@ -466,6 +392,7 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 #endif /* HAVE_LIBAPPINDICATOR */
 		} else {
 			gtk_window_deiconify(GTK_WINDOW(widget));
+			gtk_window_move(GTK_WINDOW(widget), x, y);
 		}
 	}
 	return FALSE;

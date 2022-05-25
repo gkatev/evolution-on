@@ -11,7 +11,6 @@ add_project_arguments('-I.', language:'c')
 evolutionshell        = dependency('evolution-shell-3.0',       version: '>=3.6.4')
 gtk                   = dependency('gtk+-3.0',                  version: '>=3.6.0')
 glib                  = dependency('glib-2.0')
-libnotify             = dependency('libnotify',                 version: '>=0.5.1', required : false)
 libappindicator       = dependency('appindicator-0.1',                              required : false)
 libgconfbridge        = dependency('libgconf-bridge',                               required : false)
 evolutionmail         = dependency('evolution-mail-3.0',        version: '>=3.6.0')
@@ -65,41 +64,8 @@ conf_data.set('PLUGIN_INSTALL_DIR', plugindir)
 conf_data.set('GETTEXT_PACKAGE', meson.project_name())
 conf_data.set('LOCALEDIR', join_paths(SHARE_INSTALL_PREFIX, 'locale'))
 
-uselibnotify = get_option('use-libnotify')
-
-if libappindicator.found() and libnotify.found()
-# If we got both, we prefer libappindicator as that is what probably user wants to use anyway
-# Unless user used use-libnotify=true instead
-	if uselibnotify == true
-		#So We go for libnotify instead of appindicator
-		conf_data.set('HAVE_LIBNOTIFY', true)
-		libnotifyversion = libnotify.version()
-		libnotifyversion = libnotifyversion.replace ('.','')
-		libnotifyversion_int = libnotifyversion.to_int() 
-		libnotifyversion_int = libnotifyversion_int * 100
-		conf_data.set('LIBNOTIFY_VERSION', libnotifyversion_int)
-	else
-	#Otherwise use appindicator
+if libappindicator.found()
 	conf_data.set('HAVE_LIBAPPINDICATOR', true)
-	endif
-else
-# Otherwise just use libnotify
-	conf_data.set('HAVE_LIBNOTIFY', true)
-	libnotifyversion = libnotify.version()
-	libnotifyversion = libnotifyversion.replace ('.','')
-	libnotifyversion_int = libnotifyversion.to_int() 
-	libnotifyversion_int = libnotifyversion_int * 100
-	conf_data.set('LIBNOTIFY_VERSION', libnotifyversion_int)
-
-endif
-
-if libnotify.found() and not libappindicator.found()
-	conf_data.set('HAVE_LIBNOTIFY', true)
-	libnotifyversion = libnotify.version()
-	libnotifyversion = libnotifyversion.replace ('.','')
-	libnotifyversion_int = libnotifyversion.to_int() 
-	libnotifyversion_int = libnotifyversion_int * 100
-	conf_data.set('LIBNOTIFY_VERSION', libnotifyversion_int)
 endif
 
 if libgconfbridge.found()

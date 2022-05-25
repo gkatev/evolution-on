@@ -215,19 +215,6 @@ get_config_widget_status()
 #ifdef DEBUG
 	g_printf("Evolution-on: Founction call %s\n", __func__);
 #endif
-#ifdef HAVE_LIBNOTIFY
-	GtkWidget *widget;
-	GSettings *settings;
-	const gchar *text;
-	settings = g_settings_new(NOTIF_SCHEMA);
-	text = _("Popup _message together with the icon");
-	widget = gtk_check_button_new_with_mnemonic(text);
-	gtk_widget_show(widget);
-	g_settings_bind(settings, CONF_KEY_STATUS_NOTIFICATION,
-			G_OBJECT(widget),
-			"active", G_SETTINGS_BIND_DEFAULT);
-	return widget;
-#endif
 	return NULL;
 }
 

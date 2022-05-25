@@ -44,10 +44,6 @@ struct OnIcon {
 	do_quit_func			quit_func;
 	do_toggle_window_func	toggle_window_func;
 
-#ifdef HAVE_LIBNOTIFY
-	NotifyNotification		*notify;
-#endif /* HAVE_LIBNOTIFY */
-
 	gchar					*uri;
 	guint					status_count;
 	gboolean				winnotify;
@@ -306,12 +302,6 @@ remove_notification(struct OnIcon *_onicon)
 #ifdef DEBUG
 	g_printf("Evolution-on: Founction call %s\n", __func__);
 #endif
-#ifdef HAVE_LIBNOTIFY
-	if (_onicon->notify)
-		notify_notification_close(_onicon->notify, NULL);
-	_onicon->notify = NULL;
-#endif
-
 	_onicon->status_count = 0;
 }
 
