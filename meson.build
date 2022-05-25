@@ -11,7 +11,6 @@ add_project_arguments('-I.', language:'c')
 evolutionshell        = dependency('evolution-shell-3.0',       version: '>=3.6.4')
 gtk                   = dependency('gtk+-3.0',                  version: '>=3.6.0')
 glib                  = dependency('glib-2.0')
-libappindicator       = dependency('appindicator-0.1',                              required : false)
 libgconfbridge        = dependency('libgconf-bridge',                               required : false)
 evolutionmail         = dependency('evolution-mail-3.0',        version: '>=3.6.0')
 libemailengine        = dependency('libemail-engine',           version: '>=3.6.0')
@@ -63,10 +62,6 @@ conf_data.set('EVOLUTION_VERSION', evoversion_int)
 conf_data.set('PLUGIN_INSTALL_DIR', plugindir)
 conf_data.set('GETTEXT_PACKAGE', meson.project_name())
 conf_data.set('LOCALEDIR', join_paths(SHARE_INSTALL_PREFIX, 'locale'))
-
-if libappindicator.found()
-	conf_data.set('HAVE_LIBAPPINDICATOR', true)
-endif
 
 if libgconfbridge.found()
 	conf_data.set('HAVE_LIBGCONFBRIDGE', true)

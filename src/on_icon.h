@@ -30,13 +30,7 @@ typedef void (*do_quit_func)(GtkMenuItem*, gpointer);
 typedef void (*do_toggle_window_func)();
 
 struct OnIcon {
-#ifdef HAVE_LIBAPPINDICATOR
-	AppIndicator			*appindicator;
-	/* If somebody else rises Evolution window */
-	gboolean				external_shown;
-#else
 	GtkStatusIcon			*icon;
-#endif
 
 	EShellWindow			*evo_window;
 
@@ -59,14 +53,12 @@ status_icon_activate_cb(struct OnIcon *_onicon);
 static gboolean
 button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
 
-#ifndef HAVE_LIBAPPINDICATOR
 static void
 icon_activated(GtkStatusIcon *icon, gpointer user_data);
 
 static void
 popup_menu_status(GtkStatusIcon *status_icon, guint button,
 		guint activate_time, gpointer user_data);
-#endif /* HAVE_LIBAPPINDICATOR */
 
 static GtkMenu *
 create_popup_menu(struct OnIcon *_onicon);
@@ -77,15 +69,6 @@ set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
 #ifdef DEBUG
 	g_printf("Evolution-on: Founction call %s\n", __func__);
 #endif
-#ifdef HAVE_LIBAPPINDICATOR
-	if (unread) {
-		app_indicator_set_status(_onicon->appindicator,
-				APP_INDICATOR_STATUS_ATTENTION);
-	} else {
-		app_indicator_set_status(_onicon->appindicator,
-				APP_INDICATOR_STATUS_ACTIVE);
-	}
-#else /* !#ifdef HAVE_LIBAPPINDICATOR */
 	gtk_status_icon_set_tooltip_text(_onicon->icon, msg);
 	if (unread) {
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
@@ -96,7 +79,6 @@ set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
 				e_icon_factory_get_icon("mail-read",
 						GTK_ICON_SIZE_LARGE_TOOLBAR));
 	}
-#endif /* #ifdef HAVE_LIBAPPINDICATOR */
 }
 
 static void
@@ -109,26 +91,6 @@ create_icon(struct OnIcon *_onicon,
 	_onicon->quit_func = _quit_func;
 	_onicon->toggle_window_func = _toggle_window_func;
 	_onicon->winnotify = FALSE;
-
-#ifdef HAVE_LIBAPPINDICATOR
-
-	GtkMenu *menu;
-	const gchar *read_icon = e_icon_factory_get_icon_filename("mail-read",
-			GTK_ICON_SIZE_LARGE_TOOLBAR);
-	const gchar *unread_icon = e_icon_factory_get_icon_filename("mail-unread",
-			GTK_ICON_SIZE_LARGE_TOOLBAR);
-	_onicon->appindicator = app_indicator_new("evolution-on", read_icon,
-			APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-	app_indicator_set_status(_onicon->appindicator,
-			APP_INDICATOR_STATUS_ACTIVE);
-	app_indicator_set_icon_full(_onicon->appindicator, read_icon, _("mail"));
-	app_indicator_set_attention_icon_full(_onicon->appindicator, unread_icon,
-			_("new mail"));
-	menu = create_popup_menu(_onicon);
-	app_indicator_set_menu(_onicon->appindicator, GTK_MENU(menu));
-	_onicon->external_shown = FALSE;
-
-#else /* !HAVE_LIBAPPINDICATOR */
 
 	if (!_onicon->icon) {
 		_onicon->icon = gtk_status_icon_new();
@@ -148,25 +110,7 @@ create_icon(struct OnIcon *_onicon,
 	}
 	gtk_status_icon_set_visible(_onicon->icon, TRUE);
 
-#endif /* HAVE_LIBAPPINDICATOR */
 }
-
-#ifdef HAVE_LIBAPPINDICATOR
-static void
-indicator_activated(GtkMenuItem *item, gpointer user_data)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
-#endif
-	struct OnIcon *_onicon = (struct OnIcon*)user_data;
-	if (!_onicon->external_shown) {
-		_onicon->toggle_window_func();
-		status_icon_activate_cb(_onicon);
-	} else {
-		_onicon->external_shown = FALSE;
-	}
-}
-#else /* HAVE_LIBAPPINDICATOR */
 
 static void
 icon_activated(GtkStatusIcon *icon, gpointer user_data)
@@ -197,7 +141,6 @@ popup_menu_status(GtkStatusIcon *status_icon, guint button,
 			_onicon->icon,
 			button, activate_time);
 }
-#endif /* HAVE_LIBAPPINDICATOR */
 
 static gboolean
 button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
@@ -223,15 +166,6 @@ create_popup_menu(struct OnIcon *_onicon)
 	GtkWidget *item;
 
 	menu = GTK_MENU(gtk_menu_new());
-
-#ifdef HAVE_LIBAPPINDICATOR
-	item = gtk_check_menu_item_new_with_label(_("Show Evolution"));
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	gtk_widget_show(item);
-	g_signal_connect(GTK_CHECK_MENU_ITEM(item), "toggled",
-			G_CALLBACK(indicator_activated), _onicon);
-#endif /* HAVE_LIBAPPINDICATOR */
 
 	item = gtk_image_menu_item_new_from_stock(GTK_STOCK_PROPERTIES, NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);

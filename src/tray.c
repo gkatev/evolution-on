@@ -43,10 +43,6 @@
 
 #include <mail/e-mail-reader.h>
 
-#ifdef HAVE_LIBAPPINDICATOR
-#include <libappindicator/app-indicator.h>
-#endif
-
 #ifdef DEBUG
 #include <glib/gprintf.h>
 #endif
@@ -194,32 +190,9 @@ shown_window_cb(GtkWidget *widget, gpointer user_data)
 #endif
 	if (!show_window_cb_called) {
 		if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP)) {
-#ifdef HAVE_LIBAPPINDICATOR
-			GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
-			GList *items = gtk_container_get_children(GTK_CONTAINER(menu));
-			GtkWidget *item = g_list_nth_data(items, 0);
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), FALSE);
-#else /* !HAVE_LIBAPPINDICATOR */
 			on_icon.toggle_window_func();
-#endif /* HAVE_LIBAPPINDICATOR */
 		}
 		show_window_cb_called = TRUE;
-	} else {
-#ifdef HAVE_LIBAPPINDICATOR
-			/*
-			 * Make sure indicator has proper state no matter how we are shown.
-			 * We could be shown by user clicking Evolution icon in her
-			 * launcher when we are hiding it, in which case this is the only
-			 * place we could set the indicator shown state to TRUE.
-			 */
-			GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
-			GList *items = gtk_container_get_children(GTK_CONTAINER(menu));
-			GtkWidget *item = g_list_nth_data(items, 0);
-			if (!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item))) {
-				on_icon.external_shown = TRUE;
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
-			}
-#endif /* HAVE_LIBAPPINDICATOR */
 	}
 }
 
@@ -382,14 +355,7 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 #endif
 		gtk_window_set_default_size(GTK_WINDOW(widget), width, height);
 		if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) {
-#ifdef HAVE_LIBAPPINDICATOR
-			GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
-			GList *items = gtk_container_get_children(GTK_CONTAINER(menu));
-			GtkWidget *item = g_list_nth_data(items, 0);
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), FALSE);
-#else /* !HAVE_LIBAPPINDICATOR */
 			on_icon.toggle_window_func();
-#endif /* HAVE_LIBAPPINDICATOR */
 		} else {
 			gtk_window_deiconify(GTK_WINDOW(widget));
 			gtk_window_move(GTK_WINDOW(widget), x, y);
@@ -405,14 +371,7 @@ on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
 	g_printf("Evolution-on: Founction call %s\n", __func__);
 #endif
 	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE)) {
-#ifdef HAVE_LIBAPPINDICATOR
-		GtkMenu *menu = app_indicator_get_menu(on_icon.appindicator);
-		GList *items = gtk_container_get_children(GTK_CONTAINER(menu));
-		GtkWidget *item = g_list_nth_data(items, 0);
-		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), FALSE);
-#else /* !HAVE_LIBAPPINDICATOR */
 		on_icon.toggle_window_func();
-#endif /* HAVE_LIBAPPINDICATOR */
 		return TRUE; // we've handled it
 	}
 	return FALSE;
