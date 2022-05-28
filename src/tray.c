@@ -354,7 +354,7 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 		g_printf("Evolution-on: Window Sizes: width:%i height:%i\n", width, height);
 #endif
 		gtk_window_set_default_size(GTK_WINDOW(widget), width, height);
-		if (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) {
+		if (event->new_window_state && GDK_WINDOW_STATE_ICONIFIED) {
 			on_icon.toggle_window_func();
 		} else {
 			gtk_window_deiconify(GTK_WINDOW(widget));

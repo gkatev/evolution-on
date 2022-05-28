@@ -73,11 +73,11 @@ set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
 	if (unread) {
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
 				e_icon_factory_get_icon("mail-unread",
-						GTK_ICON_SIZE_LARGE_TOOLBAR));
+						GTK_ICON_SIZE_DIALOG));
 	} else {
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
 				e_icon_factory_get_icon("mail-read",
-						GTK_ICON_SIZE_LARGE_TOOLBAR));
+						GTK_ICON_SIZE_DIALOG));
 	}
 }
 
@@ -96,7 +96,7 @@ create_icon(struct OnIcon *_onicon,
 		_onicon->icon = gtk_status_icon_new();
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
 				e_icon_factory_get_icon("mail-read",
-						GTK_ICON_SIZE_LARGE_TOOLBAR));
+						GTK_ICON_SIZE_DIALOG));
 
 		g_signal_connect(G_OBJECT(_onicon->icon), "activate",
 				G_CALLBACK(icon_activated),
@@ -121,7 +121,7 @@ icon_activated(GtkStatusIcon *icon, gpointer user_data)
 	struct OnIcon *_onicon = (struct OnIcon*)user_data;
 	status_icon_activate_cb(_onicon);
 	gtk_status_icon_set_from_pixbuf (_onicon->icon,
-			e_icon_factory_get_icon("mail-read", GTK_ICON_SIZE_LARGE_TOOLBAR));
+			e_icon_factory_get_icon("mail-read", GTK_ICON_SIZE_DIALOG));
 	gtk_status_icon_set_has_tooltip (_onicon->icon, FALSE);
 	_onicon->winnotify = FALSE;
 }
