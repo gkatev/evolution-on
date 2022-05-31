@@ -6,8 +6,8 @@
 	location="@PLUGIN_INSTALL_DIR@/liborg-gnome-evolution-on.so"
 	domain="@GETTEXT_PACKAGE@"
 	localedir="@LOCALEDIR@"
-	_name="Evolution On">
-	<_description>Support for controling Evolution from system tray</_description>
+	name="Evolution On">
+	<description>Support for controling Evolution from system tray</description>
 	<author name="Lucian Langa" email="lucilanga@gnome.org"/>
 	<author name="Kostadin Atanasov" email="pranayama111@gmail.com"/>
 	<author name="Ozan Türkyılmaz" email="ozan.turkyilmaz@gmail.com"/>
