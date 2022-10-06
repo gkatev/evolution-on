@@ -54,7 +54,7 @@ conf_data.set('EDS_DISABLE_DEPRECATED', true)
 # We dont use the old version anyway. If you do, good luck.
 evoversion = evolutionshell.version()
 evoversion = evoversion.replace('.','')
-evoversion_int = evoversion.to_int(evoversion)
+evoversion_int = evoversion.to_int()
 evoversion_int = evoversion_int * 10
 
 conf_data.set('EVOLUTION_VERSION', evoversion_int)
