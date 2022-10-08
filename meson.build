@@ -1,5 +1,5 @@
 project('evolution-on','c',
-	version: '3.24.3',
+	version: '3.24.4',
 	meson_version: '>=0.58.0',
 	license: 'GPL',
 	default_options: ['prefix=/usr'])
