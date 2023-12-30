@@ -18,7 +18,7 @@ libemailengine        = dependency('libemail-engine',           version: '>=3.6.
 # Directories
 LIB_INSTALL_DIR      = join_paths(get_option('prefix'), 'lib')
 SHARE_INSTALL_PREFIX = join_paths(get_option('prefix'), 'share')
-plugindir = evolutionshell.get_variable(pkgconfig: 'plugindir')
+plugindir = evolutionshell.get_variable(pkgconfig: 'plugindir', default_value: '')
 
 if plugindir == ''
 	plugindir = join_paths(evolutionshell.get_variable(pkgconfig: 'privlibdir'), 'plugins')
