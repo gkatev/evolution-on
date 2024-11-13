@@ -54,44 +54,6 @@ static gulong show_window_handle = 0;
 static gboolean show_window_cb_called = FALSE;
 struct OnIcon on_icon = ONICON_NEW;
 
-static gint sx, sy;
-
-/* Raise the window */
-void
-gtkut_window_popup(GtkWidget *window)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
-#endif
-	gint x, y, new_x, new_y;
-	
-	g_return_if_fail(window != NULL);
-	g_return_if_fail(gtk_widget_get_window(window) != NULL);
-	
-	/* This will return NULL always as we rise the window, we don't actually
-	 * default display nor a monitor. We find a way to get this information
-	 * before we lower the window.
-	 */
-	
-	gdk_window_get_origin(gtk_widget_get_window(window), &x, &y);
-	new_x = x % sx; if (new_x < 0) new_x = 0;
-	new_y = y % sy; if (new_y < 0) new_y = 0;
-	if (new_x != x || new_y != y) {
-		gdk_window_move(gtk_widget_get_window(window), new_x, new_y);
-	}
-	gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), FALSE);
-	/* make sure the window is rised */
-#ifndef G_OS_WIN32
-	GdkWindow *gwindow = gtk_widget_get_window(GTK_WIDGET(window));
-	guint32 server_time = gdk_x11_get_server_time(gwindow);
-	gtk_window_present_with_time(GTK_WINDOW(window), server_time);
-#else
-	gtk_window_present(GTK_WINDOW(window));
-	/* ensure that the window is displayed at the top */
-	gdk_window_show(gtk_widget_get_window(window));
-#endif
-}
-
 //helper method for toggling used on init for hidden on startup and on tray click
 static void
 toggle_window()
@@ -103,7 +65,6 @@ toggle_window()
 		gtk_widget_hide(GTK_WIDGET(on_icon.evo_window));
 	} else {
 		gtk_widget_show(GTK_WIDGET(on_icon.evo_window));
-		gtkut_window_popup(GTK_WIDGET(on_icon.evo_window));
 	}
 
 	if (on_icon.winnotify) {
@@ -195,8 +156,6 @@ shown_window_cb(GtkWidget *widget, gpointer user_data)
 		show_window_cb_called = TRUE;
 	}
 }
-
-static GMutex mlock;
 
 /* New email notification */
 static void
@@ -390,9 +349,6 @@ e_plugin_ui_init(GtkUIManager *ui_manager, EShellView *shell_view)
 	display = gdk_display_get_default();
 	monitor = gdk_display_get_monitor(display, 0);
 	gdk_monitor_get_geometry(monitor, &geometry);
-	
-	sx = geometry.width;
-	sy = geometry.height;
 	
 	on_icon.evo_window = e_shell_view_get_shell_window(shell_view);
 
