@@ -13,8 +13,7 @@
 	<author name="Ozan Türkyılmaz" email="ozan.turkyilmaz@gmail.com"/>
 
 	<hook class="org.gnome.evolution.ui:1.0">
-		<ui-manager id="org.gnome.evolution.mail">
-		</ui-manager>
+		<ui-manager id="org.gnome.evolution.mail"/>
 	</hook>
 	<hook class="org.gnome.evolution.shell.events:1.0">
 		<event
