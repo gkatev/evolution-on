@@ -210,14 +210,14 @@ status_icon_activate_cb(struct OnIcon *_onicon)
 		EShellWindow *shell_window;
 		EShellSidebar *shell_sidebar;
 		EMFolderTree *folder_tree;
-		GtkAction *action;
+		EUIAction *action;
 		/* Present the shell window. */
 		shell_window = E_SHELL_WINDOW(list->data);
 
 		/* Switch to the mail view. */
 		shell_view = e_shell_window_get_shell_view(shell_window, "mail");
-		action = e_shell_view_get_action(shell_view);
-		gtk_action_activate(action);
+		action = e_shell_view_get_switcher_action(shell_view);
+		e_ui_action_set_active(action, TRUE);
 
 		/* Select the latest folder with new mail. */
 		shell_sidebar = e_shell_view_get_shell_sidebar(shell_view);
