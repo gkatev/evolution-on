@@ -46,7 +46,7 @@ static gboolean
 is_part_enabled(gchar *schema, const gchar *key)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	GSettings *settings = g_settings_new(schema);
 	gboolean res = g_settings_get_boolean(settings, key);
@@ -58,7 +58,7 @@ static void
 set_part_enabled(gchar *schema, const gchar *key, gboolean enable)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	GSettings *settings = g_settings_new (schema);
 	g_settings_set_boolean (settings, key, enable);
@@ -72,7 +72,7 @@ static void
 toggled_hidden_on_startup_cb(GtkWidget *widget, gpointer data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP,
@@ -83,7 +83,7 @@ static void
 toggled_hidde_on_minimize_cb(GtkWidget *widget, gpointer data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_MINIMIZE,
@@ -94,7 +94,7 @@ static void
 toggle_hidden_on_close_cb(GtkWidget *widget, gpointer data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE,
@@ -127,7 +127,7 @@ static void
 do_play_sound(gboolean beep, gboolean use_theme, const gchar *file)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	GdkDisplay *display;
 	if (!beep) {
@@ -154,7 +154,7 @@ static void
 sound_file_set_cb(GtkWidget *widget, gpointer data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	gchar *file;
 	GSettings *settings;
@@ -170,7 +170,7 @@ static void
 sound_play_cb(GtkWidget *widget, gpointer data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	struct _SoundConfigureWidgets *scw = (struct _SoundConfigureWidgets*)data;
 	gchar *file;
@@ -188,7 +188,7 @@ static gboolean
 sound_notify_idle_cb(gpointer user_data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	gchar *file;
 	GSettings *settings;
@@ -213,7 +213,7 @@ static GtkWidget *
 get_config_widget_status()
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	return NULL;
 }
@@ -222,7 +222,7 @@ static GtkWidget *
 get_config_widget_sound()
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	GtkWidget *vbox;
 	GtkWidget *container;
@@ -340,7 +340,7 @@ static GtkWidget *
 get_original_cfg_widget()
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	GtkWidget *container;
 	GtkWidget *widget;
@@ -385,7 +385,7 @@ static GtkWidget *
 get_cfg_widget()
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	GtkWidget *container, *vbox, *check;
 	vbox = gtk_box_new (FALSE, 6);

@@ -67,7 +67,7 @@ static void
 set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	gtk_status_icon_set_tooltip_text(_onicon->icon, msg);
 	if (unread) {
@@ -116,7 +116,7 @@ static void
 icon_activated(GtkStatusIcon *icon, gpointer user_data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	struct OnIcon *_onicon = (struct OnIcon*)user_data;
 	status_icon_activate_cb(_onicon);
@@ -131,7 +131,7 @@ popup_menu_status(GtkStatusIcon *status_icon, guint button,
 		guint activate_time, gpointer user_data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	struct OnIcon *_onicon = (struct OnIcon*)user_data;
 	GtkMenu *menu = create_popup_menu(_onicon);
@@ -146,7 +146,7 @@ static gboolean
 button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	struct OnIcon *_onicon = (struct OnIcon*)data;
 	if (event->button != 1) {
@@ -160,7 +160,7 @@ static GtkMenu *
 create_popup_menu(struct OnIcon *_onicon)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	GtkMenu *menu;
 	GtkWidget *item;
@@ -189,7 +189,7 @@ static void
 status_icon_activate_cb(struct OnIcon *_onicon)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	EShell *shell;
 	GList *list;
@@ -234,7 +234,7 @@ static void
 remove_notification(struct OnIcon *_onicon)
 {
 #ifdef DEBUG
-	g_printf("Evolution-on: Founction call %s\n", __func__);
+	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	_onicon->status_count = 0;
 }
