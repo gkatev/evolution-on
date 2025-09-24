@@ -6,6 +6,7 @@ project('evolution-on','c',
 
 add_project_arguments('-DHAVE_CONFIG_H', language:'c')
 add_project_arguments('-I.', language:'c')
+add_project_arguments('-Wno-deprecated-declarations', language:'c')
 
 # Dependecies so far:
 evolutionshell        = dependency('evolution-shell-3.0',       version: '>=3.6.4')
