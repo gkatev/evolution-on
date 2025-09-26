@@ -337,7 +337,7 @@ on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
 }
 
 gboolean
-e_plugin_ui_init(GtkUIManager *ui_manager, EShellView *shell_view)
+e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view)
 {
 #ifdef DEBUG
 	g_printf("Evolution-on: Function call %s\n", __func__);
