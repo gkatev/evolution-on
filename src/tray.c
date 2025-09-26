@@ -127,10 +127,8 @@ do_properties(GtkMenuItem *item, gpointer user_data)
 	gtk_box_pack_start(GTK_BOX (vbox), ocfg, TRUE, TRUE, 0);
 
 	dialog = gtk_dialog_new_with_buttons(_("Mail Notification Properties"),
-			NULL,
-			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-			"window-close", GTK_RESPONSE_CLOSE,
-			NULL);
+			NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			_("_Close"), GTK_RESPONSE_CLOSE, NULL);
 
 	content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
