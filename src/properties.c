@@ -18,31 +18,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef EVOLUTION_ON_ON_PROPERTIES_H
-#define EVOLUTION_ON_ON_PROPERTIES_H
-
-#define GCONF_KEY_NOTIF_ROOT			"/apps/evolution/eplugin/mail-notification/"
-#define GCONF_KEY_TRAY_ROOT				"/apps/evolution/eplugin/evolution-on/"
-
-#define NOTIF_SCHEMA					"org.gnome.evolution.plugin.mail-notification"
-#define TRAY_SCHEMA						"org.gnome.evolution.plugin.evolution-on"
-#define CONF_KEY_HIDDEN_ON_STARTUP		"hidden-on-startup"
-#define CONF_KEY_HIDE_ON_MINIMIZE		"hide-on-minimize"
-#define CONF_KEY_HIDE_ON_CLOSE			"hide-on-close"
-#define CONF_KEY_NOTIFY_ONLY_INBOX		"notify-only-inbox"
-#define CONF_KEY_ENABLED_DBUS			"notify-dbus-enabled"
-#define CONF_KEY_ENABLED_STATUS			"notify-status-enabled"
-#define CONF_KEY_ENABLED_SOUND			"notify-sound-enabled"
-#define CONF_KEY_STATUS_NOTIFICATION	"notify-status-notification"
+#include <gtk/gtk.h>
+#include <glib.h>
+#include <glib/gi18n.h>
 
 #ifdef DEBUG
 #include <glib/gprintf.h>
 #endif
 
+#include <e-util/e-util.h>
+
+#include "properties.h"
+
 /******************************************************************************
  * Query dconf
  *****************************************************************************/
-static gboolean
+gboolean
 is_part_enabled(gchar *schema, const gchar *key)
 {
 #ifdef DEBUG
@@ -419,4 +410,60 @@ get_cfg_widget()
 	return container;
 }
 
-#endif /* EVOLUTION_ON_ON_PROPERTIES_H */
+GtkWidget *
+e_plugin_lib_get_configure_widget(EPlugin *epl)
+{
+	return get_cfg_widget();
+}
+
+void properties_show(void) {
+#ifdef DEBUG
+	g_printf("Evolution-on: Function call %s\n", __func__);
+#endif
+	GtkWidget *cfg, *ocfg, *dialog, *label, *vbox, *hbox;
+	GtkWidget *content_area;
+	gchar *text;
+
+	cfg = get_cfg_widget();
+	if (!cfg)
+		return;
+	ocfg = get_original_cfg_widget();
+	if (!ocfg)
+		return;
+
+	text = g_markup_printf_escaped("<span size=\"x-large\">%s</span>",
+			_("Evolution On"));
+
+	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+	label = gtk_label_new(NULL);
+	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+	gtk_label_set_yalign(GTK_LABEL(label), 0.5);
+	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+	gtk_label_set_markup(GTK_LABEL(label), text);
+	g_free (text);
+
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+	gtk_widget_show(label);
+	gtk_widget_show(vbox);
+
+	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+	label = gtk_label_new("   ");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_widget_show_all(hbox);
+
+	gtk_box_pack_start(GTK_BOX (vbox), cfg, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX (vbox), ocfg, TRUE, TRUE, 0);
+
+	dialog = gtk_dialog_new_with_buttons(_("Mail Notification Properties"),
+			NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			_("_Close"), GTK_RESPONSE_CLOSE, NULL);
+
+	content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+	gtk_container_add(GTK_CONTAINER(content_area), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER (vbox), 10);
+	gtk_widget_set_size_request(dialog, 400, -1);
+	g_signal_connect_swapped(dialog, "response",
+			G_CALLBACK(gtk_widget_destroy), dialog);
+	gtk_widget_show(dialog);	
+}

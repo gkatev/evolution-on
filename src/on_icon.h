@@ -25,8 +25,10 @@
 #include <glib/gprintf.h>
 #endif
 
-typedef void (*do_properties_func)(GtkMenuItem*, gpointer);
-typedef void (*do_quit_func)(GtkMenuItem*, gpointer);
+#include "sn.h"
+
+typedef void (*do_properties_func)();
+typedef void (*do_quit_func)();
 typedef void (*do_toggle_window_func)();
 
 struct OnIcon {
@@ -50,11 +52,11 @@ remove_notification(struct OnIcon *_onicon);
 static void
 status_icon_activate_cb(struct OnIcon *_onicon);
 
-static gboolean
-button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
+// static gboolean
+// button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
 
-static void
-icon_activated(GtkStatusIcon *icon, gpointer user_data);
+// static void
+// icon_activated(GtkStatusIcon *icon, gpointer user_data);
 
 static void
 popup_menu_status(GtkStatusIcon *status_icon, guint button,
@@ -63,68 +65,62 @@ popup_menu_status(GtkStatusIcon *status_icon, guint button,
 static GtkMenu *
 create_popup_menu(struct OnIcon *_onicon);
 
-static void
-set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	gtk_status_icon_set_tooltip_text(_onicon->icon, msg);
-	if (unread) {
-		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("mail-unread",
-						GTK_ICON_SIZE_DIALOG));
-	} else {
-		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("mail-read",
-						GTK_ICON_SIZE_DIALOG));
-	}
-}
+// static void
+// set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
+// {
+// #ifdef DEBUG
+	// g_printf("Evolution-on: Function call %s\n", __func__);
+// #endif
+	
+	// sn_set_icon(unread ? "mail-unread" : "mail-read");
+// }
 
-static void
-create_icon(struct OnIcon *_onicon,
-		do_properties_func _prop_func,
-		do_quit_func _quit_func,
-		do_toggle_window_func _toggle_window_func)
-{
-	_onicon->properties_func = _prop_func;
-	_onicon->quit_func = _quit_func;
-	_onicon->toggle_window_func = _toggle_window_func;
-	_onicon->winnotify = FALSE;
+// static void
+// create_icon(struct OnIcon *_onicon,
+		// do_properties_func _prop_func,
+		// do_quit_func _quit_func,
+		// do_toggle_window_func _toggle_window_func)
+// {
+	// _onicon->properties_func = _prop_func;
+	// _onicon->quit_func = _quit_func;
+	// _onicon->toggle_window_func = _toggle_window_func;
+	// _onicon->winnotify = FALSE;
+	
+	// sn_init("mail-read");
+	
+	// if (!_onicon->icon) {
+		// _onicon->icon = gtk_status_icon_new();
+		// gtk_status_icon_set_from_pixbuf(_onicon->icon,
+				// e_icon_factory_get_icon("mail-read",
+						// GTK_ICON_SIZE_DIALOG));
 
-	if (!_onicon->icon) {
-		_onicon->icon = gtk_status_icon_new();
-		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("mail-read",
-						GTK_ICON_SIZE_DIALOG));
+		// g_signal_connect(G_OBJECT(_onicon->icon), "activate",
+				// G_CALLBACK(icon_activated),
+				// _onicon);
 
-		g_signal_connect(G_OBJECT(_onicon->icon), "activate",
-				G_CALLBACK(icon_activated),
-				_onicon);
+		// g_signal_connect(G_OBJECT(_onicon->icon),"button-press-event",
+				// G_CALLBACK(button_press_cb), _onicon);
 
-		g_signal_connect(G_OBJECT(_onicon->icon),"button-press-event",
-				G_CALLBACK(button_press_cb), _onicon);
+		// g_signal_connect(_onicon->icon, "popup-menu",
+				// G_CALLBACK(popup_menu_status), _onicon);
+	// }
+	// gtk_status_icon_set_visible(_onicon->icon, TRUE);
 
-		g_signal_connect(_onicon->icon, "popup-menu",
-				G_CALLBACK(popup_menu_status), _onicon);
-	}
-	gtk_status_icon_set_visible(_onicon->icon, TRUE);
+// }
 
-}
-
-static void
-icon_activated(GtkStatusIcon *icon, gpointer user_data)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	struct OnIcon *_onicon = (struct OnIcon*)user_data;
-	status_icon_activate_cb(_onicon);
-	gtk_status_icon_set_from_pixbuf (_onicon->icon,
-			e_icon_factory_get_icon("mail-read", GTK_ICON_SIZE_DIALOG));
-	gtk_status_icon_set_has_tooltip (_onicon->icon, FALSE);
-	_onicon->winnotify = FALSE;
-}
+// static void
+// icon_activated(GtkStatusIcon *icon, gpointer user_data)
+// {
+// #ifdef DEBUG
+	// g_printf("Evolution-on: Function call %s\n", __func__);
+// #endif
+	// struct OnIcon *_onicon = (struct OnIcon*)user_data;
+	// status_icon_activate_cb(_onicon);
+	// gtk_status_icon_set_from_pixbuf (_onicon->icon,
+			// e_icon_factory_get_icon("mail-read", GTK_ICON_SIZE_DIALOG));
+	// gtk_status_icon_set_has_tooltip (_onicon->icon, FALSE);
+	// _onicon->winnotify = FALSE;
+// }
 
 static void
 popup_menu_status(GtkStatusIcon *status_icon, guint button,

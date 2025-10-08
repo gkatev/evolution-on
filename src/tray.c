@@ -1,6 +1,7 @@
 /* Evoution On plugin
  *  Copyright (C) 2008-2012 Lucian Langa <cooly@gnome.eu.org>
  *  Copyright (C) 2022 Ozan Türkyılmaz <ozan.turkyilmaz@gmail.com>
+ *  Copyright (C) 2023-2025 George Katevenis <george_kate@hotmail.com>
  * 
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,10 +27,6 @@
 #include <glib/gi18n.h>
 #include <string.h>
 
-#ifndef G_OS_WIN32
-#include <gdk/gdkx.h> 
-#endif
-
 #include <e-util/e-util.h>
 
 #include <shell/e-shell.h>
@@ -40,23 +37,27 @@
 
 #include <mail/em-event.h>
 #include <mail/em-folder-tree.h>
-
 #include <mail/e-mail-reader.h>
 
 #ifdef DEBUG
 #include <glib/gprintf.h>
 #endif
 
-#include "on_properties.h"
 #include "on_icon.h"
+#include "properties.h"
+#include "sn.h"
 
-static gulong show_window_handle = 0;
-static gboolean show_window_cb_called = FALSE;
+#define ICON_READ "mail-read"
+#define ICON_UNREAD "mail-unread"
+
+// static gulong show_window_handle = 0;
+// static gboolean show_window_cb_called = FALSE;
+static gboolean initialized = FALSE;
 struct OnIcon on_icon = ONICON_NEW;
 
 //helper method for toggling used on init for hidden on startup and on tray click
 static void
-toggle_window()
+toggle_window(void)
 {
 #ifdef DEBUG
 	g_printf("Evolution-on: Function call %s\n", __func__);
@@ -65,79 +66,29 @@ toggle_window()
 		gtk_widget_hide(GTK_WIDGET(on_icon.evo_window));
 	} else {
 		gtk_widget_show(GTK_WIDGET(on_icon.evo_window));
+		sn_set_icon(ICON_READ);
 	}
 
-	if (on_icon.winnotify) {
-		set_icon(&on_icon, FALSE, _(""));
-		on_icon.winnotify = FALSE;
-	}
+	// if (on_icon.winnotify) {
+		// set_icon(&on_icon, FALSE, _(""));
+		// on_icon.winnotify = FALSE;
+	// }
 }
 
-/* Quit the evolution */
 static void
-do_quit(GtkMenuItem *item, gpointer user_data)
+do_quit(void)
 {
 #ifdef DEBUG
 	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
-	EShell *shell;
-	shell = e_shell_get_default();
+	EShell *shell = e_shell_get_default();
 	e_shell_quit(shell, E_SHELL_QUIT_ACTION);
 }
 
-/* Show and do properties of the plugin */
 static void
-do_properties(GtkMenuItem *item, gpointer user_data)
+do_properties(void)
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	GtkWidget *cfg, *ocfg, *dialog, *label, *vbox, *hbox;
-	GtkWidget *content_area;
-	gchar *text;
-
-	cfg = get_cfg_widget();
-	if (!cfg)
-		return;
-	ocfg = get_original_cfg_widget();
-	if (!ocfg)
-		return;
-
-	text = g_markup_printf_escaped("<span size=\"x-large\">%s</span>",
-			_("Evolution On"));
-
-	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-	label = gtk_label_new(NULL);
-	gtk_label_set_xalign(GTK_LABEL(label), 0.0);
-	gtk_label_set_yalign(GTK_LABEL(label), 0.5);
-	gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-	gtk_label_set_markup(GTK_LABEL(label), text);
-	g_free (text);
-
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-	gtk_widget_show(label);
-	gtk_widget_show(vbox);
-
-	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-	label = gtk_label_new("   ");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	gtk_widget_show_all(hbox);
-
-	gtk_box_pack_start(GTK_BOX (vbox), cfg, TRUE, TRUE, 0);
-	gtk_box_pack_start(GTK_BOX (vbox), ocfg, TRUE, TRUE, 0);
-
-	dialog = gtk_dialog_new_with_buttons(_("Mail Notification Properties"),
-			NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-			_("_Close"), GTK_RESPONSE_CLOSE, NULL);
-
-	content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-
-	gtk_container_add(GTK_CONTAINER(content_area), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER (vbox), 10);
-	gtk_widget_set_size_request(dialog, 400, -1);
-	g_signal_connect_swapped(dialog, "response",
-			G_CALLBACK(gtk_widget_destroy), dialog);
-	gtk_widget_show(dialog);
+	properties_show();
 }
 
 /* Show window when clicked on our icon */
@@ -147,9 +98,13 @@ shown_window_cb(GtkWidget *widget, gpointer user_data)
 #ifdef DEBUG
 	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
+	
+	static gboolean show_window_cb_called = FALSE;
+	
 	if (!show_window_cb_called) {
 		if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP)) {
-			on_icon.toggle_window_func();
+			// on_icon.toggle_window_func();
+			toggle_window();
 		}
 		show_window_cb_called = TRUE;
 	}
@@ -235,22 +190,16 @@ new_notify_status(EMEventTargetFolder *t, struct OnIcon *_onicon)
 		msg = tmp;
 	}
 
-	set_icon(_onicon, TRUE, msg);
+	sn_set_icon(ICON_UNREAD);
+	// sn_set_tooltip(msg);
+	
+	// printf("tooltip: %s\n", msg);
 
-	_onicon->winnotify = TRUE;
+	// _onicon->winnotify = TRUE;
 
 	g_free(msg);
 }
-/* Start up and put our icon */
-void
-org_gnome_evolution_tray_startup(void *ep)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	if (!on_icon.quit_func)
-		create_icon(&on_icon, do_properties, do_quit, toggle_window);
-}
+
 /* Nofity based on folder changes */
 void
 org_gnome_evolution_on_folder_changed(EPlugin *ep, EMEventTargetFolder *t)
@@ -280,7 +229,8 @@ org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t)
 		guint flags = camel_message_info_get_flags(info);
 		if (!(flags & CAMEL_MESSAGE_SEEN)) {
 			if (g_atomic_int_dec_and_test(&on_icon.status_count))
-				set_icon(&on_icon, FALSE, _(""));
+				// set_icon(&on_icon, FALSE, _(""));
+				sn_set_icon(ICON_READ);
 		}
 #if EVOLUTION_VERSION < 31192
 		camel_folder_free_message_info(t->folder, info);
@@ -312,7 +262,7 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 #endif
 		gtk_window_set_default_size(GTK_WINDOW(widget), width, height);
 		if (event->new_window_state && GDK_WINDOW_STATE_ICONIFIED) {
-			on_icon.toggle_window_func();
+			toggle_window();
 		} else {
 			gtk_window_deiconify(GTK_WINDOW(widget));
 			gtk_window_move(GTK_WINDOW(widget), x, y);
@@ -328,7 +278,7 @@ on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
 	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE)) {
-		on_icon.toggle_window_func();
+		toggle_window();
 		return TRUE; // we've handled it
 	}
 	return FALSE;
@@ -343,30 +293,40 @@ e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view)
 	GdkDisplay *display;
 	GdkMonitor *monitor;
 	GdkRectangle geometry;
-	
+
 	display = gdk_display_get_default();
 	monitor = gdk_display_get_monitor(display, 0);
 	gdk_monitor_get_geometry(monitor, &geometry);
-	
+
 	on_icon.evo_window = e_shell_view_get_shell_window(shell_view);
 
-	show_window_handle = g_signal_connect(G_OBJECT(on_icon.evo_window),
-			"show", G_CALLBACK(shown_window_cb), &on_icon);
+	g_signal_connect(G_OBJECT(on_icon.evo_window),
+		"show", G_CALLBACK(shown_window_cb), NULL);
 
 	g_signal_connect(G_OBJECT(on_icon.evo_window), "window-state-event",
 			G_CALLBACK(window_state_event), NULL);
 
-	g_signal_connect(G_OBJECT(on_icon.evo_window), "delete-event",
-            G_CALLBACK(on_widget_deleted), NULL);
+	g_signal_connect(G_OBJECT(on_icon.evo_window),
+		"delete-event", G_CALLBACK(on_widget_deleted), NULL);
 
-	if (!on_icon.quit_func)
-		create_icon(&on_icon, do_properties, do_quit, toggle_window);
+	if(!initialized)
+		sn_init(ICON_READ, toggle_window, do_properties, do_quit);
+
+	on_icon.properties_func = do_properties;
+	on_icon.quit_func = do_quit;
+	on_icon.toggle_window_func = toggle_window;
+	// on_icon.winnotify = FALSE;
 
 	return TRUE;
 }
 
-GtkWidget *
-e_plugin_lib_get_configure_widget(EPlugin *epl)
+void // TODO Is this useful?
+org_gnome_evolution_tray_startup(void *ep)
 {
-	return get_cfg_widget();
+#ifdef DEBUG
+	g_printf("Evolution-on: Function call %s\n", __func__);
+#endif
+	
+	if(!initialized)
+		sn_init(ICON_READ, toggle_window, do_properties, do_quit);
 }
