@@ -11,6 +11,7 @@
 	<author name="Lucian Langa" email="lucilanga@gnome.org"/>
 	<author name="Kostadin Atanasov" email="pranayama111@gmail.com"/>
 	<author name="Ozan Türkyılmaz" email="ozan.turkyilmaz@gmail.com"/>
+	<author name="George Katevenis" email="george_kate@hotmail.com"/>
 
 	<hook class="org.gnome.evolution.ui:1.0">
 		<ui-manager id="org.gnome.evolution.mail"/>
