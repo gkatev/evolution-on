@@ -50,18 +50,28 @@
 static EShellWindow *evo_window;
 static gboolean initialized = FALSE;
 
-//helper method for toggling used on init for hidden on startup and on tray click
+static
+void hide_window(void)
+{
+	gtk_widget_hide(GTK_WIDGET(evo_window));
+}
+
+static
+void show_window(void)
+{
+	gtk_widget_show(GTK_WIDGET(evo_window));
+}
+
 static void
 toggle_window(void)
 {
 #ifdef DEBUG
 	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
-	if (gtk_widget_get_visible(GTK_WIDGET(evo_window))) {
-		gtk_widget_hide(GTK_WIDGET(evo_window));
+	if(gtk_widget_get_visible(GTK_WIDGET(evo_window))) {
+		hide_window();
 	} else {
-		gtk_widget_show(GTK_WIDGET(evo_window));
-		sn_set_icon(ICON_READ);
+		show_window();
 	}
 }
 
@@ -153,35 +163,31 @@ org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t)
 // #endif
 	// }
 }
-/* Change window state */
+
 static gboolean
 window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 {
-	gint x, y; /* to save window position */
-	gint width, height; /* to save window size */
 	
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_MINIMIZE)
-			&& (event->changed_mask == GDK_WINDOW_STATE_ICONIFIED)) {
-		/* GTK documentation says that it is not rediable way to save 
-		 * and restore window postion and we should use the native windowing
-		 * APIs instead. However, I am not digging into xlib yet.*/
-		 gtk_window_get_position(GTK_WINDOW(widget), &x, &y);
-		 gtk_window_get_size(GTK_WINDOW(widget), &width, &height);
-#ifdef DEBUG
-		g_printf("Evolution-on: Window Positions: x:%i y:%i\n", x, y);
-		g_printf("Evolution-on: Window Sizes: width:%i height:%i\n", width, height);
-#endif
-		gtk_window_set_default_size(GTK_WINDOW(widget), width, height);
-		if (event->new_window_state && GDK_WINDOW_STATE_ICONIFIED) {
-			toggle_window();
-		} else {
-			gtk_window_deiconify(GTK_WINDOW(widget));
-			gtk_window_move(GTK_WINDOW(widget), x, y);
-		}
+	/* If enabled, when minimizing, hide to tray instead.
+	 *
+	 * Hide the window, then call deiconify, so that the next time we show
+	 * it, it won't be minimized. IINM, de-iconifying a hidden window does
+	 * not make it appear at once, but updates its internal state accordingly.
+	 *
+	 * These actions themselves will trigger a bunch of window state events,
+	 * and we don't really want to act on them. For sure, as soon as hide(),
+	 * all subsequently emitted events will have the WITHDRAWN flag, so just
+	 * ignore all invocations that contain it. */
+	
+	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_MINIMIZE)
+		&& (event->changed_mask & GDK_WINDOW_STATE_ICONIFIED)
+		&& (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED)
+		&& !(event->new_window_state & GDK_WINDOW_STATE_WITHDRAWN))
+	{
+		hide_window();
+		gtk_window_deiconify(GTK_WINDOW(widget));
 	}
+	
 	return FALSE;
 }
 /* Handle window deletion */
@@ -192,7 +198,7 @@ on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
 	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
 	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE)) {
-		toggle_window();
+		hide_window();
 		return TRUE; // we've handled it
 	}
 	return FALSE;
@@ -235,6 +241,8 @@ org_gnome_evolution_tray_startup(void *ep)
 #ifdef DEBUG
 	g_printf("Evolution-on: Function call %s\n", __func__);
 #endif
+	
+	printf("org_gnome_evolution_tray_startup\n");
 	
 	if(!initialized)
 		sn_init(ICON_READ, toggle_window, do_properties, do_quit);
