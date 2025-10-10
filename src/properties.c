@@ -2,6 +2,7 @@
  * Copyright (C) 2008-2012 Lucian Langa <cooly@gnome.eu.org>
  * Copyright (C) 2012-2013 Kostadin Atanasov <pranayama111@gmail.com>
  * Copyright (C) 2022 Ozan Türkyılmaz <ozan.turkyilmaz@gmail.com>
+ * Copyright (C) 2025 George Katevenis <george_kate@hotmail.com>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +18,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <gtk/gtk.h>
 #include <glib.h>
