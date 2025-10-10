@@ -7,7 +7,7 @@
 	domain="@GETTEXT_PACKAGE@"
 	localedir="@LOCALEDIR@"
 	name="Evolution On">
-	<description>Support for controling Evolution from system tray</description>
+	<description>Support for minimizing Evolution to the system tray</description>
 	<author name="Lucian Langa" email="lucilanga@gnome.org"/>
 	<author name="Kostadin Atanasov" email="pranayama111@gmail.com"/>
 	<author name="Ozan Türkyılmaz" email="ozan.turkyilmaz@gmail.com"/>
@@ -15,18 +15,6 @@
 
 	<hook class="org.gnome.evolution.ui:1.0">
 		<ui-manager id="org.gnome.evolution.mail"/>
-	</hook>
-	<hook class="org.gnome.evolution.shell.events:1.0">
-		<event
-			id="upgrade.done"
-			handle="org_gnome_evolution_tray_startup"
-			target="upgrade"/>
-	</hook>
-	<hook class="org.gnome.evolution.shell.events:1.0">
-		<event
-			id="started.done"
-			handle="get_shell"
-			target="shell"/>
 	</hook>
 	<hook class="org.gnome.evolution.mail.events:1.0">
 		<event id="folder.changed"

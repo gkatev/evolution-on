@@ -48,7 +48,6 @@
 #define ICON_UNREAD "mail-unread"
 
 static EShellWindow *evo_window;
-static gboolean initialized = FALSE;
 
 // -----------------------------
 
@@ -185,16 +184,7 @@ gboolean e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view) {
 	g_signal_connect(G_OBJECT(evo_window), "delete-event",
 		G_CALLBACK(on_widget_deleted), NULL);
 	
-	if(!initialized)
-		sn_init(ICON_READ, toggle_window, do_properties, do_quit);
+	sn_init(ICON_READ, toggle_window, do_properties, do_quit);
 	
 	return TRUE;
-}
-
-// TODO Is this useful?
-void org_gnome_evolution_tray_startup(void *ep) {
-	printf("org_gnome_evolution_tray_startup\n");
-	
-	if(!initialized)
-		sn_init(ICON_READ, toggle_window, do_properties, do_quit);
 }

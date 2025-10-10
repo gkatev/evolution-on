@@ -8,12 +8,12 @@
     <key name="hide-on-minimize" type="b">
       <default>false</default>
       <summary>Hide Evolution Mail on minimize.</summary>
-      <description>When pressing minimize button Evolution Mail window is automatically hidden</description>
+      <description>When pressing the minimize button the Evolution Mail window is automatically hidden</description>
     </key>
     <key name="hide-on-close" type="b">
       <default>false</default>
       <summary>Hide Evolution Mail on close.</summary>
-      <description>When pressing close button Evolution Mail window is automatically hidden</description>
+      <description>When pressing the close button the Evolution Mail window is automatically hidden</description>
     </key>
   </schema>
 </schemalist>
