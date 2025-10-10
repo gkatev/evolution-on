@@ -44,7 +44,11 @@ static const gchar introspection_xml[] =
 "</node>";
 
 static GDBusConnection *bus = NULL;
+static guint owner_id = 0;
 static guint registration_id = 0;
+static guint subscription_id = 0;
+DbusmenuServer *menu_server = NULL;
+
 static const char *current_icon = NULL;
 
 static void register_with_watcher(void);
@@ -140,32 +144,42 @@ static DbusmenuMenuitem *build_menu(
 	void (*menu_prefs_cb)(void),
 	void (*menu_quit_cb)(void))
 {
-	DbusmenuMenuitem *root = dbusmenu_menuitem_new();
+	DbusmenuMenuitem *root, *item;
+	
+	root = dbusmenu_menuitem_new();
 	
 	/* Properties */
-	DbusmenuMenuitem *properties = dbusmenu_menuitem_new();
-	dbusmenu_menuitem_property_set(properties,
+	item = dbusmenu_menuitem_new();
+	
+	dbusmenu_menuitem_property_set(item,
 		DBUSMENU_MENUITEM_PROP_LABEL, "_Properties");
-	dbusmenu_menuitem_property_set(properties,
+	dbusmenu_menuitem_property_set(item,
 		DBUSMENU_MENUITEM_PROP_ICON_NAME, "document-properties");
-	g_signal_connect(properties, DBUSMENU_MENUITEM_SIGNAL_ITEM_ACTIVATED,
+	
+	g_signal_connect(item, DBUSMENU_MENUITEM_SIGNAL_ITEM_ACTIVATED,
 		G_CALLBACK(on_menu_properties), menu_prefs_cb);
-	dbusmenu_menuitem_child_append(root, properties);
+	
+	dbusmenu_menuitem_child_append(root, item);
+	g_object_unref(item);
 	
 	/* Quit */
-	DbusmenuMenuitem *quit = dbusmenu_menuitem_new();
-	dbusmenu_menuitem_property_set(quit,
+	item = dbusmenu_menuitem_new();
+	
+	dbusmenu_menuitem_property_set(item,
 		DBUSMENU_MENUITEM_PROP_LABEL, "_Quit");
-	dbusmenu_menuitem_property_set(quit,
+	dbusmenu_menuitem_property_set(item,
 		DBUSMENU_MENUITEM_PROP_ICON_NAME, "application-exit");
-	g_signal_connect(quit, DBUSMENU_MENUITEM_SIGNAL_ITEM_ACTIVATED,
+	
+	g_signal_connect(item, DBUSMENU_MENUITEM_SIGNAL_ITEM_ACTIVATED,
 		G_CALLBACK(on_menu_quit), menu_quit_cb);
-	dbusmenu_menuitem_child_append(root, quit);
+	
+	dbusmenu_menuitem_child_append(root, item);
+	g_object_unref(item);
 	
 	return root;
 }
 
-int sn_init(const char *icon_name,
+gint sn_init(const char *icon_name,
 	void (*activate_cb)(void),
 	void (*menu_prefs_cb)(void),
 	void (*menu_quit_cb)(void))
@@ -177,7 +191,7 @@ int sn_init(const char *icon_name,
 	
 	bus = NULL;
 	
-	int return_code = -1;
+	gint return_code = -1;
 	
 	current_icon = icon_name;
 	
@@ -187,10 +201,10 @@ int sn_init(const char *icon_name,
 	if(!bus) {
 		g_printerr("Evolution-on: dbus: Failed to connect to D-Bus: %s\n",
 			error->message);
-		goto error;
+		goto end;
 	}
 	
-	g_bus_own_name_on_connection(bus, DBUS_SERVICE_NAME,
+	owner_id = g_bus_own_name_on_connection(bus, DBUS_SERVICE_NAME,
 		G_BUS_NAME_OWNER_FLAGS_NONE, NULL, NULL, NULL, NULL);
 	
 	/* Export SNI interface */
@@ -200,7 +214,7 @@ int sn_init(const char *icon_name,
 	if(!introspection_data) {
 		g_printerr("Evolution-on: dbus: "
 			"Failed to parse introspection xml data: %s\n", error->message);
-		goto error;
+		goto end;
 	}
 	
 	static const GDBusInterfaceVTable interface_vtable = {
@@ -215,24 +229,24 @@ int sn_init(const char *icon_name,
 	if(registration_id == 0) {
 		g_printerr("Evolution-on: dbus: "
 			"Failed to register object: %s\n", error->message);
-		goto error;
+		goto end;
 	}
 	
 	/* Setup DBusMenu */
 	
-	DbusmenuServer *menu_server = dbusmenu_server_new("/Menu");
+	menu_server = dbusmenu_server_new("/Menu");
 	DbusmenuMenuitem *root = build_menu(menu_prefs_cb, menu_quit_cb);
 	dbusmenu_server_set_root(menu_server, root);
-	
+	g_object_unref(root);
 	// ---
 	
-	/* Call-me-back when the owner of
+	/* Call-me-back if/when the owner of
 	 * org.kde.StatusNotifierWatcher changes */
 	
-	g_dbus_connection_signal_subscribe(bus, "org.freedesktop.DBus",
-		"org.freedesktop.DBus", "NameOwnerChanged", "/org/freedesktop/DBus",
-		"org.kde.StatusNotifierWatcher", G_DBUS_SIGNAL_FLAGS_NONE,
-		on_snw_owner_changed, NULL, NULL);
+	subscription_id = g_dbus_connection_signal_subscribe(bus,
+		"org.freedesktop.DBus", "org.freedesktop.DBus", "NameOwnerChanged",
+		"/org/freedesktop/DBus", "org.kde.StatusNotifierWatcher",
+		G_DBUS_SIGNAL_FLAGS_NONE, on_snw_owner_changed, NULL, NULL);
 	
 	/* Create a proxy and check if a watcher already exists. If not, do
 	 * nothing -- we'll call register in the NameOwnerChanged callback. */
@@ -244,7 +258,7 @@ int sn_init(const char *icon_name,
 	if(!bus_proxy) {
 		g_printerr("Evolution-on: dbus: "
 			"Failed to create DBus proxy: %s\n", error->message);
-		goto error;
+		goto end;
 	}
 	
 	bus_reply = g_dbus_proxy_call_sync(bus_proxy, "NameHasOwner",
@@ -254,7 +268,7 @@ int sn_init(const char *icon_name,
 	if(!bus_reply) {
 		g_printerr("Evolution-on: dbus: "
 			"NameHasOwner call failed: %s\n", error->message);
-		goto error;
+		goto end;
 	}
 	
 	bool watcher_available;
@@ -264,11 +278,11 @@ int sn_init(const char *icon_name,
 	
 	return_code = 0;
 	
-error:
+end:
 	
 	g_clear_object(&bus_proxy);
-	g_dbus_node_info_unref(introspection_data);
-	g_variant_unref(bus_reply);
+	g_clear_pointer(&introspection_data, g_dbus_node_info_unref);
+	g_clear_pointer(&bus_reply, g_variant_unref);
 	g_clear_error(&error);
 	
 	if(return_code != 0)
@@ -278,7 +292,19 @@ error:
 }
 
 void sn_fini(void) {
-	g_dbus_connection_unregister_object(bus, registration_id);
+	if(subscription_id > 0) {
+		g_dbus_connection_signal_unsubscribe(bus, subscription_id);
+		subscription_id = 0;
+	}
+	
+	g_clear_object(&menu_server);
+	
+	if(registration_id > 0) {
+		g_dbus_connection_unregister_object(bus, registration_id);
+		registration_id = 0;
+	}
+	
+	g_clear_handle_id(&owner_id, g_bus_unown_name);
 	g_clear_object(&bus);
 }
 
@@ -288,4 +314,3 @@ void sn_set_icon(const char *icon_name) {
 	g_dbus_connection_emit_signal(bus, NULL, SNI_OBJECT_PATH,
 		SNI_INTERFACE, "NewIcon", NULL, NULL);
 }
-

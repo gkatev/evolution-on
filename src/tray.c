@@ -48,6 +48,8 @@
 #define ICON_UNREAD "mail-unread"
 
 static EShellWindow *evo_window;
+static gboolean initialized = FALSE;
+static gboolean hide_startup = FALSE;
 
 // -----------------------------
 
@@ -81,13 +83,9 @@ static void shown_window_cb(GtkWidget *widget, gpointer user_data) {
 	/* If enabled, the first time the evolution
 	 * window is shown, hide it to the tray. */
 	
-	static gboolean window_hidden_startup = FALSE;
-	
-	if (!window_hidden_startup) {
-		if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP))
-			hide_window();
-		
-		window_hidden_startup = TRUE;
+	if(hide_startup) {
+		hide_window();
+		hide_startup = FALSE;
 	}
 	
 	sn_set_icon(ICON_READ);
@@ -134,8 +132,60 @@ static gboolean on_widget_deleted(GtkWidget *widget,
 
 // -----------------------------
 
+static EShellWindow *find_shell_window(void) {
+	EShell *shell = e_shell_get_default();
+	if(!shell) return NULL;
+	
+	for(GList *list = gtk_application_get_windows(GTK_APPLICATION(shell));
+		list != NULL; list = g_list_next(list))
+	{
+		if(E_IS_SHELL_WINDOW(list->data))
+			return E_SHELL_WINDOW(list->data);
+	}
+	
+	g_printerr("Evolution-on: Couldn't get EShell Window\n");
+	return NULL;
+}
+
+static gint init(void) {
+	if(!evo_window && !(evo_window = find_shell_window()))
+		return -1;
+	
+	int status = sn_init(ICON_READ, toggle_window, do_properties, do_quit);
+	if(status != 0) {
+		g_printerr("Evolution-on: StatusNotifierItem init failed (%d)\n", status);
+		return -2;
+	}
+	
+	g_signal_connect(G_OBJECT(evo_window), "show",
+		G_CALLBACK(shown_window_cb), NULL);
+	
+	g_signal_connect(G_OBJECT(evo_window), "window-state-event",
+			G_CALLBACK(window_state_event), NULL);
+	
+	g_signal_connect(G_OBJECT(evo_window), "delete-event",
+		G_CALLBACK(on_widget_deleted), NULL);
+	
+	initialized = TRUE;
+	return 0;
+}
+
+static void fini(void) {
+	g_signal_handlers_disconnect_by_func(evo_window, shown_window_cb, NULL);
+	g_signal_handlers_disconnect_by_func(evo_window, window_state_event, NULL);
+	g_signal_handlers_disconnect_by_func(evo_window, on_widget_deleted, NULL);
+	
+	show_window();
+	
+	sn_fini();
+	
+	initialized = FALSE;
+}
+
+// -----------------------------
+
 void org_gnome_evolution_on_folder_changed(EPlugin *ep, EMEventTargetFolder *t) {
-	printf("org_gnome_evolution_on_folder_changed\n");
+	// printf("org_gnome_evolution_on_folder_changed\n");
 	
 	/* TODO:
 	 * try to update state according what is changed in the folder. Note -
@@ -170,21 +220,29 @@ void org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t) {
 	// }
 }
 
-// -----------------------------
-
 gboolean e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view) {
-	evo_window = e_shell_view_get_shell_window(shell_view);
+	/* If hide-on-startup is enabled, mark the pending hide-action.
+	 * We only do this from ui_init(), i.e. only when evolution is
+	 * actually starting up, not if our plugin is merely being
+	 * enabled at a later point. */
+	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP))
+		hide_startup = TRUE;
 	
-	g_signal_connect(G_OBJECT(evo_window), "show",
-		G_CALLBACK(shown_window_cb), NULL);
+	gint status = 0;
 	
-	g_signal_connect(G_OBJECT(evo_window), "window-state-event",
-			G_CALLBACK(window_state_event), NULL);
+	if(!initialized) {
+		evo_window = e_shell_view_get_shell_window(shell_view);
+		status = init();
+	}
 	
-	g_signal_connect(G_OBJECT(evo_window), "delete-event",
-		G_CALLBACK(on_widget_deleted), NULL);
+	return (status == 0);
+}
+
+gint e_plugin_lib_enable(EPlugin *ep, gint enable) {
+	if(enable && !initialized)
+		return init();
+	else if(!enable && initialized)
+		fini();
 	
-	sn_init(ICON_READ, toggle_window, do_properties, do_quit);
-	
-	return TRUE;
+	return 0;
 }
