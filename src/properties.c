@@ -87,7 +87,7 @@ static GtkWidget *
 get_cfg_widget()
 {
 	GtkWidget *container, *vbox, *check;
-	vbox = gtk_box_new (FALSE, 6);
+	vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
 	gtk_widget_show (vbox);
 	container = vbox;
 
@@ -155,7 +155,7 @@ void properties_show(void) {
 
 	gtk_box_pack_start(GTK_BOX (vbox), cfg, TRUE, TRUE, 0);
 
-	dialog = gtk_dialog_new_with_buttons(_("Mail Notification Properties"),
+	dialog = gtk_dialog_new_with_buttons(_("Evolution On Properties"),
 			NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 			_("_Close"), GTK_RESPONSE_CLOSE, NULL);
 
@@ -163,8 +163,8 @@ void properties_show(void) {
 
 	gtk_container_add(GTK_CONTAINER(content_area), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER (vbox), 10);
-	gtk_widget_set_size_request(dialog, 400, -1);
+	gtk_widget_set_size_request(dialog, 350, -1);
 	g_signal_connect_swapped(dialog, "response",
 			G_CALLBACK(gtk_widget_destroy), dialog);
-	gtk_widget_show(dialog);	
+	gtk_widget_show(dialog);
 }
