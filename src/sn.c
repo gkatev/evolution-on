@@ -264,6 +264,6 @@ void sn_set_icon(const char *icon_name) {
 	current_icon = icon_name;
 	
 	g_dbus_connection_emit_signal(bus, NULL, SNI_OBJECT_PATH,
-        SNI_INTERFACE, "NewIcon", NULL, NULL);
+		SNI_INTERFACE, "NewIcon", NULL, NULL);
 }
 

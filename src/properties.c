@@ -21,10 +21,7 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 #include <glib/gi18n.h>
-
-#ifdef DEBUG
 #include <glib/gprintf.h>
-#endif
 
 #include <e-util/e-util.h>
 
@@ -36,9 +33,6 @@
 gboolean
 is_part_enabled(gchar *schema, const gchar *key)
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
 	GSettings *settings = g_settings_new(schema);
 	gboolean res = g_settings_get_boolean(settings, key);
 	g_object_unref(settings);
@@ -48,9 +42,6 @@ is_part_enabled(gchar *schema, const gchar *key)
 static void
 set_part_enabled(gchar *schema, const gchar *key, gboolean enable)
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
 	GSettings *settings = g_settings_new (schema);
 	g_settings_set_boolean (settings, key, enable);
 	g_object_unref (settings);
@@ -62,9 +53,6 @@ set_part_enabled(gchar *schema, const gchar *key, gboolean enable)
 static void
 toggled_hidden_on_startup_cb(GtkWidget *widget, gpointer data)
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP,
 			gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
@@ -73,9 +61,6 @@ toggled_hidden_on_startup_cb(GtkWidget *widget, gpointer data)
 static void
 toggled_hidde_on_minimize_cb(GtkWidget *widget, gpointer data)
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_MINIMIZE,
 			gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
@@ -84,9 +69,6 @@ toggled_hidde_on_minimize_cb(GtkWidget *widget, gpointer data)
 static void
 toggle_hidden_on_close_cb(GtkWidget *widget, gpointer data)
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
 	g_return_if_fail(widget != NULL);
 	set_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE,
 			gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
@@ -99,9 +81,6 @@ toggle_hidden_on_close_cb(GtkWidget *widget, gpointer data)
 static GtkWidget *
 get_cfg_widget()
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
 	GtkWidget *container, *vbox, *check;
 	vbox = gtk_box_new (FALSE, 6);
 	gtk_widget_show (vbox);
@@ -141,9 +120,6 @@ e_plugin_lib_get_configure_widget(EPlugin *epl)
 }
 
 void properties_show(void) {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
 	GtkWidget *cfg, *dialog, *label, *vbox, *hbox;
 	GtkWidget *content_area;
 	gchar *text;

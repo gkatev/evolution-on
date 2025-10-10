@@ -8,8 +8,7 @@
 int sn_init(const char *icon_name,
 	void (*activate_cb)(void),
 	void (*menu_prefs_cb)(void),
-	void (*menu_quit_cb)(void)
-);
+	void (*menu_quit_cb)(void));
 
 void sn_fini(void);
 void sn_set_icon(const char *icon_name);

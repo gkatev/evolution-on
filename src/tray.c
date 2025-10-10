@@ -50,124 +50,53 @@
 static EShellWindow *evo_window;
 static gboolean initialized = FALSE;
 
-static
-void hide_window(void)
-{
+// -----------------------------
+
+static void hide_window(void) {
 	gtk_widget_hide(GTK_WIDGET(evo_window));
 }
 
-static
-void show_window(void)
-{
+static void show_window(void) {
 	gtk_widget_show(GTK_WIDGET(evo_window));
 }
 
-static void
-toggle_window(void)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	if(gtk_widget_get_visible(GTK_WIDGET(evo_window))) {
+static void toggle_window(void) {
+	if(gtk_widget_get_visible(GTK_WIDGET(evo_window)))
 		hide_window();
-	} else {
+	else
 		show_window();
-	}
 }
 
-static void
-do_quit(void)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
+static void do_properties(void) {
+	properties_show();
+}
+
+static void do_quit(void) {
 	EShell *shell = e_shell_get_default();
 	e_shell_quit(shell, E_SHELL_QUIT_ACTION);
 }
 
-static void
-do_properties(void)
-{
-	properties_show();
-}
+// -----------------------------
 
-/* Show window when clicked on our icon */
-static void
-shown_window_cb(GtkWidget *widget, gpointer user_data)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
+static void shown_window_cb(GtkWidget *widget, gpointer user_data) {
+	/* If enabled, the first time the evolution
+	 * window is shown, hide it to the tray. */
 	
-	static gboolean show_window_cb_called = FALSE;
+	static gboolean window_hidden_startup = FALSE;
 	
-	if (!show_window_cb_called) {
-		if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP)) {
-			toggle_window();
-		}
-		show_window_cb_called = TRUE;
+	if (!window_hidden_startup) {
+		if (is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP))
+			hide_window();
+		
+		window_hidden_startup = TRUE;
 	}
 	
 	sn_set_icon(ICON_READ);
 }
 
-/* New email notification */
-static void
-new_notify_status(EMEventTargetFolder *t)
+static gboolean window_state_event(GtkWidget *widget,
+	GdkEventWindowState *event)
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	
-	sn_set_icon(ICON_UNREAD);
-
-	// sn_set_tooltip(msg);
-	// printf("tooltip: %s\n", msg);
-}
-
-/* Nofity based on folder changes */
-void
-org_gnome_evolution_on_folder_changed(EPlugin *ep, EMEventTargetFolder *t)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	/* TODO:
-	 * try to update state according what is changed in the folder. Note -
-	 * getting the folder may block...
-	 */
-	if (t->new > 0)
-		new_notify_status(t);
-}
-/* Mail read nofity */
-void
-org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t)
-{
-// #ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-// #endif
-	// if (g_atomic_int_compare_and_exchange(&on_icon.status_count, 0, 0))
-		// return;
-
-	// CamelMessageInfo *info = camel_folder_get_message_info(t->folder, t->uid);
-	// if (info) {
-		// guint flags = camel_message_info_get_flags(info);
-		// if (!(flags & CAMEL_MESSAGE_SEEN)) {
-			// if (g_atomic_int_dec_and_test(&on_icon.status_count))
-				// sn_set_icon(ICON_READ);
-		// }
-// #if EVOLUTION_VERSION < 31192
-		// camel_folder_free_message_info(t->folder, info);
-// #else
-		// g_clear_object(&info);
-// #endif
-	// }
-}
-
-static gboolean
-window_state_event(GtkWidget *widget, GdkEventWindowState *event)
-{
-	
 	/* If enabled, when minimizing, hide to tray instead.
 	 *
 	 * Hide the window, then call deiconify, so that the next time we show
@@ -190,58 +119,80 @@ window_state_event(GtkWidget *widget, GdkEventWindowState *event)
 	
 	return FALSE;
 }
-/* Handle window deletion */
-gboolean
-on_widget_deleted(GtkWidget *widget, GdkEvent * /*event*/, gpointer /*data*/)
+
+static gboolean on_widget_deleted(GtkWidget *widget,
+	GdkEvent *event, gpointer user_data)
 {
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
+	/* If enabled, abort the window-close and hide it instead. */
+	
 	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDE_ON_CLOSE)) {
 		hide_window();
-		return TRUE; // we've handled it
+		return TRUE; // we've handled it, don't run any more handlers
 	}
+	
 	return FALSE;
 }
 
-gboolean
-e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	GdkDisplay *display;
-	GdkMonitor *monitor;
-	GdkRectangle geometry;
+// -----------------------------
 
-	display = gdk_display_get_default();
-	monitor = gdk_display_get_monitor(display, 0);
-	gdk_monitor_get_geometry(monitor, &geometry);
+void org_gnome_evolution_on_folder_changed(EPlugin *ep, EMEventTargetFolder *t) {
+	printf("org_gnome_evolution_on_folder_changed\n");
+	
+	/* TODO:
+	 * try to update state according what is changed in the folder. Note -
+	 * getting the folder may block...
+	 */
+	if (t->new > 0) {
+		sn_set_icon(ICON_UNREAD);
+		
+		// sn_set_tooltip(msg);
+		// printf("tooltip: %s\n", msg);
+	}
+}
 
+void org_gnome_mail_read_notify(EPlugin *ep, EMEventTargetMessage *t) {
+	printf("org_gnome_mail_read_notify\n");
+	
+	// if (g_atomic_int_compare_and_exchange(&on_icon.status_count, 0, 0))
+		// return;
+
+	// CamelMessageInfo *info = camel_folder_get_message_info(t->folder, t->uid);
+	// if (info) {
+		// guint flags = camel_message_info_get_flags(info);
+		// if (!(flags & CAMEL_MESSAGE_SEEN)) {
+			// if (g_atomic_int_dec_and_test(&on_icon.status_count))
+				// sn_set_icon(ICON_READ);
+		// }
+// #if EVOLUTION_VERSION < 31192
+		// camel_folder_free_message_info(t->folder, info);
+// #else
+		// g_clear_object(&info);
+// #endif
+	// }
+}
+
+// -----------------------------
+
+gboolean e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view) {
 	evo_window = e_shell_view_get_shell_window(shell_view);
-
-	g_signal_connect(G_OBJECT(evo_window),
-		"show", G_CALLBACK(shown_window_cb), NULL);
-
+	
+	g_signal_connect(G_OBJECT(evo_window), "show",
+		G_CALLBACK(shown_window_cb), NULL);
+	
 	g_signal_connect(G_OBJECT(evo_window), "window-state-event",
 			G_CALLBACK(window_state_event), NULL);
-
-	g_signal_connect(G_OBJECT(evo_window),
-		"delete-event", G_CALLBACK(on_widget_deleted), NULL);
-
+	
+	g_signal_connect(G_OBJECT(evo_window), "delete-event",
+		G_CALLBACK(on_widget_deleted), NULL);
+	
 	if(!initialized)
 		sn_init(ICON_READ, toggle_window, do_properties, do_quit);
-
+	
 	return TRUE;
 }
 
-void // TODO Is this useful?
-org_gnome_evolution_tray_startup(void *ep)
-{
-#ifdef DEBUG
-	g_printf("Evolution-on: Function call %s\n", __func__);
-#endif
-	
+// TODO Is this useful?
+void org_gnome_evolution_tray_startup(void *ep) {
 	printf("org_gnome_evolution_tray_startup\n");
 	
 	if(!initialized)
