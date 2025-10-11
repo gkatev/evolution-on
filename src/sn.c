@@ -49,7 +49,7 @@ static guint registration_id = 0;
 static guint subscription_id = 0;
 DbusmenuServer *menu_server = NULL;
 
-static const char *current_icon = NULL;
+static const gchar *current_icon = NULL;
 
 static void register_with_watcher(void);
 
@@ -308,9 +308,13 @@ void sn_fini(void) {
 	g_clear_object(&bus);
 }
 
-void sn_set_icon(const char *icon_name) {
+void sn_set_icon(const gchar *icon_name) {
 	current_icon = icon_name;
 	
 	g_dbus_connection_emit_signal(bus, NULL, SNI_OBJECT_PATH,
 		SNI_INTERFACE, "NewIcon", NULL, NULL);
+}
+
+const gchar *sn_get_icon(void) {
+	return current_icon;
 }

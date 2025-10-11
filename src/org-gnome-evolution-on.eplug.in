@@ -17,13 +17,8 @@
 		<ui-manager id="org.gnome.evolution.mail"/>
 	</hook>
 	<hook class="org.gnome.evolution.mail.events:1.0">
-		<event id="folder.changed"
-			handle="org_gnome_evolution_on_folder_changed"
-			target="folder"/>
-	</hook>
-	<hook class="org.gnome.evolution.mail.events:1.0">
-		<event id="message.reading"
-			handle="org_gnome_mail_read_notify"
+		<event id="folder.unread-updated"
+			handle="org_gnome_mail_folder_unread_updated"
 			target="message"/>
 	</hook>
 </e-plugin>

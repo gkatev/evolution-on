@@ -11,6 +11,7 @@ int sn_init(const char *icon_name,
 	void (*menu_quit_cb)(void));
 
 void sn_fini(void);
-void sn_set_icon(const char *icon_name);
+void sn_set_icon(const gchar *icon_name);
+const gchar *sn_get_icon(void);
 
 #endif /* EVOLUTION_ON_SN_H */

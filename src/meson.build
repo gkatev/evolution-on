@@ -1,10 +1,12 @@
 shared_library('liborg-gnome-evolution-on',
 	[
 		'tray.c',
-		'properties.c',
-		'properties.h',
 		'sn.c',
-		'sn.h'
+		'sn.h',
+		'ucount.c',
+		'ucount.h',
+		'properties.c',
+		'properties.h'
 	], name_prefix: '',
 	dependencies: [
 		evolutionshell,
