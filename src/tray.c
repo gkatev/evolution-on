@@ -61,7 +61,17 @@ static void show_window(void) {
 	gtk_widget_show(GTK_WIDGET(evo_window));
 }
 
-static void toggle_window(void) {
+static void on_activate(void) {
+	GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(evo_window));
+	GdkWindowState window_state = gdk_window_get_state(gdk_window);
+	
+	/* If the window is iconfied, we want it to
+	 * come up when we click on the tray icon. */
+	if(window_state & GDK_WINDOW_STATE_ICONIFIED) {
+		gtk_window_deiconify(GTK_WINDOW(evo_window));
+		return;
+	}
+	
 	if(gtk_widget_get_visible(GTK_WIDGET(evo_window)))
 		hide_window();
 	else
@@ -151,7 +161,7 @@ static gint init(void) {
 	if(!evo_window && !(evo_window = find_shell_window()))
 		return -1;
 	
-	int status = sn_init(ICON_READ, toggle_window, do_properties, do_quit);
+	int status = sn_init(ICON_READ, on_activate, do_properties, do_quit);
 	if(status != 0) {
 		g_printerr("Evolution-on: StatusNotifierItem init failed (%d)\n", status);
 		return -2;
