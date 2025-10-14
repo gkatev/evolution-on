@@ -80,9 +80,16 @@ static void on_activate(void) {
 		return;
 	}
 	
-	if(gtk_widget_get_visible(GTK_WIDGET(shell_window)))
+	if(gtk_widget_get_visible(GTK_WIDGET(shell_window))) {
+		/* The window is visible, the icon indicates new mail, and the user
+		 * clicked on it. Would be weird to hide it, no? (Try to) bring it
+		 * to it to the foreground instead. */
+		if(tray_status == 1) {
+			gtk_window_present(GTK_WINDOW(shell_window));
+			set_read();
+		} else
 			hide_window();
-	else
+	} else
 		show_window();
 }
 
