@@ -153,6 +153,12 @@ static void on_window_show(GtkWidget *widget, gpointer user_data) {
 	set_read();
 }
 
+static void on_window_focus_in(GtkWidget *widget,
+	GdkEventFocus *event, gpointer user_data)
+{
+	set_read();
+}
+
 // -----------------------------
 
 void org_gnome_mail_folder_unread_updated(EPlugin *ep,
@@ -210,6 +216,9 @@ static gint init(void) {
 	g_signal_connect(G_OBJECT(shell_window), "show",
 		G_CALLBACK(on_window_show), NULL);
 	
+	g_signal_connect(G_OBJECT(shell_window), "focus-in-event",
+		G_CALLBACK(on_window_focus_in), NULL);
+	
 	g_signal_connect(G_OBJECT(shell_window), "window-state-event",
 			G_CALLBACK(on_window_state_event), NULL);
 	
@@ -224,6 +233,7 @@ static gint init(void) {
 
 static void fini(void) {
 	g_signal_handlers_disconnect_by_func(shell_window, on_window_show, NULL);
+	g_signal_handlers_disconnect_by_func(shell_window, on_window_focus_in, NULL);
 	g_signal_handlers_disconnect_by_func(shell_window, on_window_state_event, NULL);
 	g_signal_handlers_disconnect_by_func(shell_window, on_widget_deleted, NULL);
 	
