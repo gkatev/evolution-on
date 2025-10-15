@@ -62,11 +62,17 @@ static void show_window(void) {
 	gtk_widget_show(GTK_WIDGET(shell_window));
 }
 
-static void set_read(void) {
+static void set_read(gboolean set_checkpoint) {
 	if(status == STATUS_UNREAD) {
 		sn_set_icon(ICON_READ);
 		status = STATUS_READ;
-		ucount_set_checkpoint();
+		
+		/* We are now in the 'read' status. The user now knows about
+		 * all new emails. Set this as our new known status. We'll only
+		 * notify the user about new email relative to this new status.
+		 * See also comments in ucount.c. */
+		if(set_checkpoint)
+			ucount_set_checkpoint();
 	}
 }
 
@@ -77,10 +83,11 @@ static void set_unread(void) {
 	}
 }
 
+/* Called when all folders revert back to the same unread mail
+ * count as the last time that the application was opened/focused. */
 static void on_ucount_checkpoint(void) {
 	printf("all at checkpoint\n");
-	sn_set_icon(ICON_READ);
-	status = STATUS_READ;
+	set_read(FALSE);
 }
 
 static void switch_mail_view(void) {
@@ -111,12 +118,14 @@ static void on_activate(void) {
 		if(unread) {
 			gtk_window_present(GTK_WINDOW(shell_window));
 			switch_mail_view();
-			set_read();
+			set_read(TRUE);
 		} else
 			hide_window();
 	} else {
 		show_window();
 		
+		/* The window was hidden, the icon indicates new mail,
+		 * and the user clicked on it -> focus the mail view. */
 		if(unread)
 			switch_mail_view();
 	}
@@ -175,26 +184,25 @@ static gboolean on_window_state_event(GtkWidget *widget,
 static void on_window_show(GtkWidget *widget, gpointer user_data) {
 	/* If enabled, the first time the evolution
 	 * window is shown, hide it to the tray. */
-	
 	if(hide_startup) {
 		hide_window();
 		hide_startup = FALSE;
 	}
 	
 	if(in_mail_view())
-		set_read();
+		set_read(TRUE);
 }
 
 static void on_window_focus_in(GtkWidget *widget,
 	GdkEventFocus *event, gpointer user_data)
 {
 	if(in_mail_view())
-		set_read();
+		set_read(TRUE);
 }
 
-static void on_active_view_change(EShellWindow *) {
+static void on_active_view_change(EShellWindow * /* shell_window */) {
 	if(in_mail_view())
-		set_read();
+		set_read(TRUE);
 }
 
 // -----------------------------
@@ -206,6 +214,7 @@ void org_gnome_mail_folder_unread_updated(EPlugin *ep,
 	if(t->unread == (guint) -1)
 		return;
 	
+	// Update our internal per-folder unread count record
 	gint delta = ucount_event(t->folder_uri, t->unread);
 	printf("delta = %d\n", delta);
 	
