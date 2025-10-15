@@ -46,7 +46,11 @@ static EShellWindow *shell_window = NULL;
 
 static gboolean initialized = FALSE;
 static gboolean hide_startup = FALSE;
-static gint tray_status = 0;
+
+static enum {
+	STATUS_READ,
+	STATUS_UNREAD
+} status = STATUS_READ;
 
 // -----------------------------
 
@@ -59,18 +63,32 @@ static void show_window(void) {
 }
 
 static void set_read(void) {
-	sn_set_icon(ICON_READ);
-	ucount_set_checkpoint();
-	tray_status = 0;
+	if(status == STATUS_UNREAD) {
+		sn_set_icon(ICON_READ);
+		status = STATUS_READ;
+		ucount_set_checkpoint();
+	}
 }
 
 static void set_unread(void) {
-	sn_set_icon(ICON_UNREAD);
-	tray_status = 1;
+	if(status == STATUS_READ) {
+		sn_set_icon(ICON_UNREAD);
+		status = STATUS_UNREAD;
+	}
 }
 
-static void switch_to_mail_view(void) {
+static void on_ucount_checkpoint(void) {
+	printf("all at checkpoint\n");
+	sn_set_icon(ICON_READ);
+	status = STATUS_READ;
+}
+
+static void switch_mail_view(void) {
 	e_shell_window_set_active_view(shell_window, "mail");
+}
+
+static gboolean in_mail_view(void) {
+	return g_str_equal(e_shell_window_get_active_view(shell_window), "mail");
 }
 
 static void on_activate(void) {
@@ -84,7 +102,7 @@ static void on_activate(void) {
 		return;
 	}
 	
-	gboolean unread = (tray_status == 1);
+	gboolean unread = (status == STATUS_UNREAD);
 	
 	if(gtk_widget_get_visible(GTK_WIDGET(shell_window))) {
 		/* The window is visible, the icon indicates new mail, and the user
@@ -92,7 +110,7 @@ static void on_activate(void) {
 		 * to it to the foreground instead. */
 		if(unread) {
 			gtk_window_present(GTK_WINDOW(shell_window));
-			switch_to_mail_view();
+			switch_mail_view();
 			set_read();
 		} else
 			hide_window();
@@ -100,13 +118,8 @@ static void on_activate(void) {
 		show_window();
 		
 		if(unread)
-			switch_to_mail_view();
+			switch_mail_view();
 	}
-}
-
-static void on_ucount_checkpoint(void) {
-	printf("all at checkpoint\n");
-	sn_set_icon(ICON_READ);
 }
 
 static void do_properties(void) {
@@ -168,13 +181,20 @@ static void on_window_show(GtkWidget *widget, gpointer user_data) {
 		hide_startup = FALSE;
 	}
 	
-	set_read();
+	if(in_mail_view())
+		set_read();
 }
 
 static void on_window_focus_in(GtkWidget *widget,
 	GdkEventFocus *event, gpointer user_data)
 {
-	set_read();
+	if(in_mail_view())
+		set_read();
+}
+
+static void on_active_view_change(EShellWindow *) {
+	if(in_mail_view())
+		set_read();
 }
 
 // -----------------------------
@@ -211,23 +231,23 @@ static EShellWindow *find_shell_window(void) {
 }
 
 static gint init(void) {
-	int status;
+	gint err;
 	
 	if(!shell_window) {
 		if(!(shell_window = find_shell_window()))
 			return -1;
 	}
 	
-	status = sn_init(ICON_READ, on_activate, do_properties, do_quit);
-	if(status != 0) {
-		g_printerr("Evolution-on: StatusNotifierItem init failed (%d)\n", status);
+	err = sn_init(ICON_READ, on_activate, do_properties, do_quit);
+	if(err != 0) {
+		g_printerr("Evolution-on: StatusNotifierItem init failed (%d)\n", err);
 		return -2;
 	}
 	
-	status = ucount_init(on_ucount_checkpoint);
-	if(status != 0) {
+	err = ucount_init(on_ucount_checkpoint);
+	if(err != 0) {
 		sn_fini();
-		g_printerr("Evolution-on: Ucount init failed (%d)\n", status);
+		g_printerr("Evolution-on: Ucount init failed (%d)\n", err);
 		return -3;
 	}
 	
@@ -243,7 +263,10 @@ static gint init(void) {
 	g_signal_connect(G_OBJECT(shell_window), "delete-event",
 		G_CALLBACK(on_widget_deleted), NULL);
 	
-	tray_status = 0;
+	g_signal_connect(G_OBJECT(shell_window), "notify::active-view",
+		G_CALLBACK(on_active_view_change), NULL);
+	
+	status = STATUS_READ;
 	initialized = TRUE;
 	
 	return 0;
@@ -255,6 +278,8 @@ static void fini(void) {
 	g_signal_handlers_disconnect_by_func(shell_window, on_window_state_event, NULL);
 	g_signal_handlers_disconnect_by_func(shell_window, on_widget_deleted, NULL);
 	
+	g_signal_handlers_disconnect_by_func(shell_window, on_active_view_change, NULL);
+	
 	ucount_fini();
 	sn_fini();
 	
@@ -262,7 +287,7 @@ static void fini(void) {
 	
 	shell_window = NULL;
 	initialized = FALSE;
-	tray_status = 0;
+	status = STATUS_READ;
 }
 
 gboolean e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view) {
@@ -273,14 +298,14 @@ gboolean e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view) {
 	if(is_part_enabled(TRAY_SCHEMA, CONF_KEY_HIDDEN_ON_STARTUP))
 		hide_startup = TRUE;
 	
-	gint status = 0;
+	gint err = 0;
 	
 	if(!initialized) {
 		shell_window = e_shell_view_get_shell_window(shell_view);
-		status = init();
+		err = init();
 	}
 	
-	return (status == 0);
+	return (err == 0);
 }
 
 gint e_plugin_lib_enable(EPlugin *ep, gint enable) {
