@@ -69,6 +69,10 @@ static void set_unread(void) {
 	tray_status = 1;
 }
 
+static void switch_to_mail_view(void) {
+	e_shell_window_set_active_view(shell_window, "mail");
+}
+
 static void on_activate(void) {
 	GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(shell_window));
 	GdkWindowState window_state = gdk_window_get_state(gdk_window);
@@ -80,17 +84,24 @@ static void on_activate(void) {
 		return;
 	}
 	
+	gboolean unread = (tray_status == 1);
+	
 	if(gtk_widget_get_visible(GTK_WIDGET(shell_window))) {
 		/* The window is visible, the icon indicates new mail, and the user
 		 * clicked on it. Would be weird to hide it, no? (Try to) bring it
 		 * to it to the foreground instead. */
-		if(tray_status == 1) {
+		if(unread) {
 			gtk_window_present(GTK_WINDOW(shell_window));
+			switch_to_mail_view();
 			set_read();
 		} else
 			hide_window();
-	} else
+	} else {
 		show_window();
+		
+		if(unread)
+			switch_to_mail_view();
+	}
 }
 
 static void on_ucount_checkpoint(void) {
@@ -244,12 +255,14 @@ static void fini(void) {
 	g_signal_handlers_disconnect_by_func(shell_window, on_window_state_event, NULL);
 	g_signal_handlers_disconnect_by_func(shell_window, on_widget_deleted, NULL);
 	
-	show_window();
-	
 	ucount_fini();
 	sn_fini();
 	
+	show_window();
+	
+	shell_window = NULL;
 	initialized = FALSE;
+	tray_status = 0;
 }
 
 gboolean e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view) {

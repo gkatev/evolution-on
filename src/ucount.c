@@ -118,7 +118,7 @@ gint ucount_event(const gchar *folder, guint count) {
 	return count - prev_count;
 }
 
-/* void ucount_event_inert(const gchar *folder, guint count) {
+/* void ucount_event_dud(const gchar *folder, guint count) {
 	unode_t *unode = g_hash_table_lookup(utable, folder);
 	
 	if(!unode) {
