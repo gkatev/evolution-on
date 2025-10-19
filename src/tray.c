@@ -86,7 +86,6 @@ static void set_unread(void) {
 /* Called when all folders revert back to the same unread mail
  * count as the last time that the application was opened/focused. */
 static void on_ucount_checkpoint(void) {
-	printf("all at checkpoint\n");
 	set_read(FALSE);
 }
 
@@ -216,7 +215,6 @@ void org_gnome_mail_folder_unread_updated(EPlugin *ep,
 	
 	// Update our internal per-folder unread count record
 	gint delta = ucount_event(t->folder_uri, t->unread);
-	printf("delta = %d\n", delta);
 	
 	if(delta > 0)
 		set_unread();
@@ -242,6 +240,7 @@ static EShellWindow *find_shell_window(void) {
 static gint init(void) {
 	gint err;
 	
+	// When called from e_plugin_lib_enable
 	if(!shell_window) {
 		if(!(shell_window = find_shell_window()))
 			return -1;

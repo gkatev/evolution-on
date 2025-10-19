@@ -80,8 +80,6 @@ static gint n_folders_over_checkpoint = 0;
 static void (*global_checkpoint_reached_cb)(void) = NULL;
 
 gint ucount_init(void (*checkpoint_cb)(void)) {
-	printf("init\n");
-	
 	utable = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	if(!utable) return -1;
 	
@@ -108,8 +106,6 @@ static void ucount_insert(const gchar *folder, guint count) {
 	
 	*unode = (unode_t) {.count = count, .checkpoint = count};
 	g_hash_table_insert(utable, key, unode);
-	
-	printf("insert %s:{%u, %u}\n", key, count, count);
 }
 
 /* New information regarding the unread count of a folder.
@@ -129,97 +125,40 @@ gint ucount_event(const gchar *folder, guint count) {
 	
 	unode->count = count;
 	
-	printf("%s: %u -> %u (check: %u)\n",
-		folder, prev_count, count, unode->checkpoint);
-	
 	if(count > prev_count) {
 		
 		// if was at checkpoint, and now aren't
-		if(was_at_checkpoint) {
+		if(was_at_checkpoint)
 			n_folders_over_checkpoint++;
-			printf("no longer at checkpoint, now have %d folders over checkpoint\n",
-				n_folders_over_checkpoint);
-		}
+			
 	} else if(count < prev_count) {
 		if(count <= unode->checkpoint) {
 			// can't have count < checkpoint
 			unode->checkpoint = count;
 			
-			if(count < unode->checkpoint)
-				printf("checkpoint now lower: %d\n",
-					unode->checkpoint);
-			
 			// if wasn't at checkpoint, but now are
 			if(!was_at_checkpoint) {
 				n_folders_over_checkpoint--;
 				
-				printf("now at checkpoint, have %d folder over checkpoint\n",
-					n_folders_over_checkpoint);
-				
-				if(n_folders_over_checkpoint == 0) {
-					printf("all folders at checkpoint, call cb\n");
+				if(n_folders_over_checkpoint == 0)
 					global_checkpoint_reached_cb();
-				}
 			}
 		}
 	}
-	
-	// TODO remove
-	g_assert(n_folders_over_checkpoint >= 0);
 	
 	/* Is the new count higher than the previous one? The same? The
 	 * negative count is not all that useful, be careful interpreting it. */
 	return count - prev_count;
 }
 
-/* void ucount_event_dud(const gchar *folder, guint count) {
-	unode_t *unode = g_hash_table_lookup(utable, folder);
-	
-	if(!unode) {
-		ucount_insert(folder, count);
-		return;
-	}
-	
-	gboolean was_at_checkpoint = (unode->count == unode->checkpoint);
-	
-	printf("%s: %u -> %u (check: %u)\n",
-		folder, unode->count, count, unode->checkpoint);
-	
-	if(!was_at_checkpoint) {
-		n_folders_over_checkpoint--;
-		
-		printf("we weren't in checkpoint, now we are: %d\n", count);
-		
-		if(n_folders_over_checkpoint == 0) {
-			printf("all folders at checkpoint, call cb\n");
-			global_checkpoint_reached_cb();
-		}
-	}
-	
-	if(count != unode->checkpoint)
-		printf("checkpoint now at: %d\n",
-			count);
-	else
-		printf("was already at checkpoint (%d)\n",
-			count);
-	
-	unode->count = count;
-	unode->checkpoint = count;
-} */
-
 static void set_checkpoint_foreach_cb(gpointer key, gpointer value,
 	gpointer user_data)
 {
 	unode_t *unode = (unode_t *) value;
-	if(unode->checkpoint != unode->count)
-		printf("%s was at checkpoint %d, now at %d\n",
-			(char *) key, unode->checkpoint, unode->count);
 	unode->checkpoint = unode->count;
 }
 
 void ucount_set_checkpoint(void) {
-	printf("update_checkpoint\n");
-	
 	g_hash_table_foreach(utable, set_checkpoint_foreach_cb, NULL);
 	n_folders_over_checkpoint = 0;
 }
