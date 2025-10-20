@@ -9,12 +9,11 @@ add_project_arguments('-I.', language:'c')
 
 # Dependecies so far:
 evolutionshell        = dependency('evolution-shell-3.0',       version: '>=3.6.4')
+evolutionmail         = dependency('evolution-mail-3.0',        version: '>=3.6.0')
+libemailengine        = dependency('libemail-engine',           version: '>=3.6.0')
 gtk                   = dependency('gtk+-3.0',                  version: '>=3.6.0')
 glib                  = dependency('glib-2.0')
 dbusmenuglib          = dependency('dbusmenu-glib-0.4')
-libgconfbridge        = dependency('libgconf-bridge',                               required : false)
-evolutionmail         = dependency('evolution-mail-3.0',        version: '>=3.6.0')
-libemailengine        = dependency('libemail-engine',           version: '>=3.6.0')
 
 # Directories
 LIB_INSTALL_DIR      = join_paths(get_option('prefix'), 'lib')
@@ -33,13 +32,9 @@ endif
 # GSettings starts here
 schemasoption = get_option('install-schemas')
 if schemasoption == true
-	install_data('src/org.gnome.evolution.plugin.evolution-tray.gschema.xml', install_dir: get_option('datadir') / 'glib-2.0' / 'schemas' )
+	install_data('src/org.gnome.evolution.plugin.evolution-tray.gschema.xml',
+		install_dir: get_option('datadir') / 'glib-2.0' / 'schemas' )
 # we're not adding anything to compile any schemas. That is up to packager.  
-endif
-# And we continue with GConf. GConf is dead. So we shouldn't really use it anyway.
-gconfoption = get_option('install-gconf')
-if gconfoption == true
-	install_data('src/evolution-tray.convert', install_dir: get_option('datadir') / 'GConf' / 'gsettings' )
 endif
 
 # Generate the config.h file
@@ -63,10 +58,6 @@ conf_data.set('EVOLUTION_VERSION', evoversion_int)
 conf_data.set('PLUGIN_INSTALL_DIR', plugindir)
 conf_data.set('GETTEXT_PACKAGE', meson.project_name())
 conf_data.set('LOCALEDIR', join_paths(SHARE_INSTALL_PREFIX, 'locale'))
-
-if libgconfbridge.found()
-	conf_data.set('HAVE_LIBGCONFBRIDGE', true)
-endif
 
 configure_file(
 	input: 'src/org-gnome-evolution-tray.eplug.in',
