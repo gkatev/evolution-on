@@ -1,6 +1,6 @@
-# Evolution-on
+# Evolution Tray
 
-Evolution-on is an Evolution Email plugin to minimize the application to the system tray.
+Evolution Tray is an Evolution Email plugin to minimize the application to the system tray.
 
 ### Building
 

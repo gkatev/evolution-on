@@ -2,9 +2,9 @@
   <schemalist>
 
     <schema>
-      <key>/schemas/apps/evolution/eplugin/evolution-on/hidden-on-startup</key>
-      <applyto>/apps/evolution/eplugin/evolution-on/hidden-on-startup</applyto>
-      <owner>evolution-on</owner>
+      <key>/schemas/apps/evolution/eplugin/evolution-tray/hidden-on-startup</key>
+      <applyto>/apps/evolution/eplugin/evolution-tray/hidden-on-startup</applyto>
+      <owner>evolution-tray</owner>
       <type>bool</type>
       <default>false</default>
       <locale name="C">
@@ -16,9 +16,9 @@
     </schema>
 
     <schema>
-      <key>/schemas/apps/evolution/eplugin/evolution-on/hide-on-minimize</key>
-      <applyto>/apps/evolution/eplugin/evolution-on/hide-on-minimize</applyto>
-      <owner>evolution-on</owner>
+      <key>/schemas/apps/evolution/eplugin/evolution-tray/hide-on-minimize</key>
+      <applyto>/apps/evolution/eplugin/evolution-tray/hide-on-minimize</applyto>
+      <owner>evolution-tray</owner>
       <type>bool</type>
       <default>false</default>
       <locale name="C">
@@ -30,9 +30,9 @@
     </schema>
 
     <schema>
-      <key>/schemas/apps/evolution/eplugin/evolution-on/hide-on-close</key>
-      <applyto>/apps/evolution/eplugin/evolution-on/hide-on-close</applyto>
-      <owner>evolution-on</owner>
+      <key>/schemas/apps/evolution/eplugin/evolution-tray/hide-on-close</key>
+      <applyto>/apps/evolution/eplugin/evolution-tray/hide-on-close</applyto>
+      <owner>evolution-tray</owner>
       <type>bool</type>
       <default>false</default>
       <locale name="C">

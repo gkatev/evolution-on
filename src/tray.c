@@ -1,4 +1,4 @@
-/* Evoution On plugin
+/* Evoution Tray plugin, fork of Evolution On
  *  Copyright (C) 2008-2012 Lucian Langa <cooly@gnome.eu.org>
  *  Copyright (C) 2022 Ozan Türkyılmaz <ozan.turkyilmaz@gmail.com>
  *  Copyright (C) 2023-2025 George Katevenis <george_kate@hotmail.com>
@@ -233,7 +233,7 @@ static EShellWindow *find_shell_window(void) {
 			return E_SHELL_WINDOW(list->data);
 	}
 	
-	g_printerr("Evolution-on: Couldn't get EShell Window\n");
+	g_printerr("Evolution Tray: Couldn't get EShell Window\n");
 	return NULL;
 }
 
@@ -248,14 +248,14 @@ static gint init(void) {
 	
 	err = sn_init(ICON_READ, on_activate, do_properties, do_quit);
 	if(err != 0) {
-		g_printerr("Evolution-on: StatusNotifierItem init failed (%d)\n", err);
+		g_printerr("Evolution Tray: StatusNotifierItem init failed (%d)\n", err);
 		return -2;
 	}
 	
 	err = ucount_init(on_ucount_checkpoint);
 	if(err != 0) {
 		sn_fini();
-		g_printerr("Evolution-on: Ucount init failed (%d)\n", err);
+		g_printerr("Evolution Tray: Ucount init failed (%d)\n", err);
 		return -3;
 	}
 	

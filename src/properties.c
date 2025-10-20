@@ -1,4 +1,4 @@
-/* Evoution On plugin
+/* Evoution Tray plugin, fork of Evolution On
  * Copyright (C) 2008-2012 Lucian Langa <cooly@gnome.eu.org>
  * Copyright (C) 2012-2013 Kostadin Atanasov <pranayama111@gmail.com>
  * Copyright (C) 2022 Ozan Türkyılmaz <ozan.turkyilmaz@gmail.com>
@@ -134,7 +134,7 @@ void properties_show(void) {
 		return;
 
 	text = g_markup_printf_escaped("<span size=\"x-large\">%s</span>",
-			_("Evolution On"));
+			_("Evolution Tray"));
 
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
 	label = gtk_label_new(NULL);

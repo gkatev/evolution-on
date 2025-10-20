@@ -1,4 +1,4 @@
-project('evolution-on','c',
+project('evolution-tray','c',
 	version: '3.24.4',
 	meson_version: '>=0.58.0',
 	license: 'GPL',
@@ -11,7 +11,7 @@ add_project_arguments('-I.', language:'c')
 evolutionshell        = dependency('evolution-shell-3.0',       version: '>=3.6.4')
 gtk                   = dependency('gtk+-3.0',                  version: '>=3.6.0')
 glib                  = dependency('glib-2.0')
-dbusmenuglib         = dependency('dbusmenu-glib-0.4')
+dbusmenuglib          = dependency('dbusmenu-glib-0.4')
 libgconfbridge        = dependency('libgconf-bridge',                               required : false)
 evolutionmail         = dependency('evolution-mail-3.0',        version: '>=3.6.0')
 libemailengine        = dependency('libemail-engine',           version: '>=3.6.0')
@@ -33,13 +33,13 @@ endif
 # GSettings starts here
 schemasoption = get_option('install-schemas')
 if schemasoption == true
-	install_data('src/org.gnome.evolution.plugin.evolution-on.gschema.xml', install_dir: get_option('datadir') / 'glib-2.0' / 'schemas' )
+	install_data('src/org.gnome.evolution.plugin.evolution-tray.gschema.xml', install_dir: get_option('datadir') / 'glib-2.0' / 'schemas' )
 # we're not adding anything to compile any schemas. That is up to packager.  
 endif
-# And we continue witg GConf. GConf is dead. So we shouldn't really use it anyway.
+# And we continue with GConf. GConf is dead. So we shouldn't really use it anyway.
 gconfoption = get_option('install-gconf')
 if gconfoption == true
-	install_data('src/evolution-on.convert', install_dir: get_option('datadir') / 'GConf' / 'gsettings' )
+	install_data('src/evolution-tray.convert', install_dir: get_option('datadir') / 'GConf' / 'gsettings' )
 endif
 
 # Generate the config.h file
@@ -69,8 +69,8 @@ if libgconfbridge.found()
 endif
 
 configure_file(
-	input: 'src/org-gnome-evolution-on.eplug.in',
-	output: 'org-gnome-evolution-on.eplug',
+	input: 'src/org-gnome-evolution-tray.eplug.in',
+	output: 'org-gnome-evolution-tray.eplug',
 	configuration: conf_data,
 	install: true,
 	install_dir: plugindir,

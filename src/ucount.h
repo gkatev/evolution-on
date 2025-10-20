@@ -1,5 +1,5 @@
-#ifndef EVOLUTION_ON_UCOUNT_H
-#define EVOLUTION_ON_UCOUNT_H
+#ifndef EVOLUTION_TRAY_UCOUNT_H
+#define EVOLUTION_TRAY_UCOUNT_H
 
 gint ucount_init(void (*checkpoint_cb)(void));
 void ucount_fini(void);

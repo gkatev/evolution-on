@@ -1,4 +1,4 @@
-shared_library('liborg-gnome-evolution-on',
+shared_library('liborg-gnome-evolution-tray',
 	[
 		'tray.c',
 		'sn.c',

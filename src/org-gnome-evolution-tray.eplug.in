@@ -2,11 +2,11 @@
 <e-plugin-list>
 <e-plugin
 	type="shlib"
-	id="org.gnome.evolution.plugin.evolution-on"
-	location="@PLUGIN_INSTALL_DIR@/liborg-gnome-evolution-on.so"
+	id="org.gnome.evolution.plugin.evolution-tray"
+	location="@PLUGIN_INSTALL_DIR@/liborg-gnome-evolution-tray.so"
 	domain="@GETTEXT_PACKAGE@"
 	localedir="@LOCALEDIR@"
-	name="Evolution On">
+	name="Evolution Tray">
 	<description>Support for minimizing Evolution to the system tray</description>
 	<author name="Lucian Langa" email="lucilanga@gnome.org"/>
 	<author name="Kostadin Atanasov" email="pranayama111@gmail.com"/>

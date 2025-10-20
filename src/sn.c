@@ -1,4 +1,4 @@
-/* Evoution On plugin
+/* Evoution Tray plugin, fork of Evolution On
  *  Copyright (C) 2025 George Katevenis <george_kate@hotmail.com>
  * 
  *  This program is free software; you can redistribute it and/or modify
@@ -74,9 +74,9 @@ static GVariant *on_get_property(GDBusConnection *conn, const gchar *sender,
 	if(g_strcmp0(property_name, "Category") == 0)
 		return g_variant_new_string("ApplicationStatus");
 	if(g_strcmp0(property_name, "Id") == 0)
-		return g_variant_new_string("evolution-on");
+		return g_variant_new_string("Evolution Tray");
 	if(g_strcmp0(property_name, "Title") == 0)
-		return g_variant_new_string("Evolution-on");
+		return g_variant_new_string("Evolution Tray");
 	if(g_strcmp0(property_name, "Status") == 0)
 		return g_variant_new_string("Active");
 	if(g_strcmp0(property_name, "IconName") == 0)
@@ -107,7 +107,7 @@ static void register_with_watcher(void) {
 		"org.kde.StatusNotifierWatcher", NULL, &error);
 	
 	if(!watcher_proxy) {
-		g_printerr("Evolution-on: dbus: Failed to create proxy to "
+		g_printerr("Evolution Tray: dbus: Failed to create proxy to "
 			"StatusNotifierWatcher: %s\n", error->message);
 		g_clear_error(&error);
 		return;
@@ -118,7 +118,7 @@ static void register_with_watcher(void) {
 		-1, NULL, &error);
 	
 	if(error) {
-		g_printerr("Evolution-on: dbus: Failed to register with "
+		g_printerr("Evolution Tray: dbus: Failed to register with "
 			"StatusNotifierWatcher: %s\n", error->message);
 	}
 	
@@ -199,7 +199,7 @@ gint sn_init(const char *icon_name,
 	
 	bus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
 	if(!bus) {
-		g_printerr("Evolution-on: dbus: Failed to connect to D-Bus: %s\n",
+		g_printerr("Evolution Tray: dbus: Failed to connect to D-Bus: %s\n",
 			error->message);
 		goto end;
 	}
@@ -212,7 +212,7 @@ gint sn_init(const char *icon_name,
 	introspection_data = g_dbus_node_info_new_for_xml(introspection_xml, &error);
 	
 	if(!introspection_data) {
-		g_printerr("Evolution-on: dbus: "
+		g_printerr("Evolution Tray: dbus: "
 			"Failed to parse introspection xml data: %s\n", error->message);
 		goto end;
 	}
@@ -227,7 +227,7 @@ gint sn_init(const char *icon_name,
 		&interface_vtable, activate_cb, NULL, &error);
 	
 	if(registration_id == 0) {
-		g_printerr("Evolution-on: dbus: "
+		g_printerr("Evolution Tray: dbus: "
 			"Failed to register object: %s\n", error->message);
 		goto end;
 	}
@@ -256,7 +256,7 @@ gint sn_init(const char *icon_name,
 		"org.freedesktop.DBus", NULL, &error);
 	
 	if(!bus_proxy) {
-		g_printerr("Evolution-on: dbus: "
+		g_printerr("Evolution Tray: dbus: "
 			"Failed to create DBus proxy: %s\n", error->message);
 		goto end;
 	}
@@ -266,7 +266,7 @@ gint sn_init(const char *icon_name,
 		G_DBUS_CALL_FLAGS_NONE, -1, NULL, &error);
 	
 	if(!bus_reply) {
-		g_printerr("Evolution-on: dbus: "
+		g_printerr("Evolution Tray: dbus: "
 			"NameHasOwner call failed: %s\n", error->message);
 		goto end;
 	}
