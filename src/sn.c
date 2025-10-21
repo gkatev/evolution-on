@@ -271,7 +271,7 @@ gint sn_init(const char *icon_name,
 		goto end;
 	}
 	
-	bool watcher_available;
+	gboolean watcher_available;
 	g_variant_get(bus_reply, "(b)", &watcher_available);
 	if(watcher_available)
 		register_with_watcher();

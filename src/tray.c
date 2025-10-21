@@ -199,7 +199,7 @@ static void on_window_focus_in(GtkWidget *widget,
 		set_read(TRUE);
 }
 
-static void on_active_view_change(EShellWindow * /* shell_window */) {
+static void on_active_view_change(EShellWindow *window) {
 	if(in_mail_view())
 		set_read(TRUE);
 }
@@ -233,17 +233,20 @@ static EShellWindow *find_shell_window(void) {
 			return E_SHELL_WINDOW(list->data);
 	}
 	
-	g_printerr("Evolution Tray: Couldn't get EShell Window\n");
 	return NULL;
 }
 
 static gint init(void) {
 	gint err;
 	
-	// When called from e_plugin_lib_enable
+	/* When init() is called from e_plugin_lib_enable(), we might not have
+	 * otherwise obtained (i.e. in e_plugin_ui_init()) the shell window. */
 	if(!shell_window) {
-		if(!(shell_window = find_shell_window()))
+		if(!(shell_window = find_shell_window())) {
+			g_printerr("Evolution Tray: Couldn't get the EShell Window. "
+				"At least not yet - this may not be fatal\n");
 			return -1;
+		}
 	}
 	
 	err = sn_init(ICON_READ, on_activate, do_properties, do_quit);
@@ -298,7 +301,11 @@ static void fini(void) {
 	status = STATUS_READ;
 }
 
+#if EVOLUTION_VERSION < 35510
+gboolean e_plugin_ui_init(GtkUIManager *ui_manager, EShellView *shell_view) {
+#else
 gboolean e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view) {
+#endif
 	/* If hide-on-startup is enabled, mark the pending hide-action.
 	 * We only do this from ui_init(), i.e. only when evolution is
 	 * actually starting up, not if our plugin is merely being
@@ -317,10 +324,19 @@ gboolean e_plugin_ui_init(EUIManager *ui_manager, EShellView *shell_view) {
 }
 
 gint e_plugin_lib_enable(EPlugin *ep, gint enable) {
-	if(enable && !initialized)
-		return init();
-	else if(!enable && initialized)
+	gint err = 0;
+	
+	if(enable && !initialized) {
+		err = init();
+		
+		/* If init failed because we couldn't find the shell window, it
+		 * might be because it's not created yet. We did encounter this
+		 * situation in older Evolution versions (before EUIManager??).
+		 * Just say all is okay, and we'll try again in e_plugin_ui_init(). */
+		if(err == -1)
+			err = 0;
+	} else if(!enable && initialized)
 		fini();
 	
-	return 0;
+	return err;
 }
