@@ -2,39 +2,37 @@ project('evolution-tray','c',
 	version: '3.24.4',
 	meson_version: '>=0.58.0',
 	license: 'GPL',
-	default_options: ['prefix=/usr'])
+	default_options: ['prefix=/usr']
+)
 
 add_project_arguments('-DHAVE_CONFIG_H', language:'c')
 add_project_arguments('-I.', language:'c')
 
-# Dependecies so far:
-evolutionshell        = dependency('evolution-shell-3.0',       version: '>=3.6.4')
-evolutionmail         = dependency('evolution-mail-3.0',        version: '>=3.6.0')
-libemailengine        = dependency('libemail-engine',           version: '>=3.6.0')
-gtk                   = dependency('gtk+-3.0',                  version: '>=3.6.0')
-glib                  = dependency('glib-2.0')
-dbusmenuglib          = dependency('dbusmenu-glib-0.4')
+# Dependecies
+evolutionshell = dependency('evolution-shell-3.0', version: '>=3.6.4')
+evolutionmail  = dependency('evolution-mail-3.0',  version: '>=3.6.0')
+libemailengine = dependency('libemail-engine',     version: '>=3.6.0')
+gtk            = dependency('gtk+-3.0',            version: '>=3.6.0')
+glib           = dependency('glib-2.0')
+dbusmenuglib   = dependency('dbusmenu-glib-0.4')
 
 # Directories
 LIB_INSTALL_DIR      = join_paths(get_option('prefix'), 'lib')
 SHARE_INSTALL_PREFIX = join_paths(get_option('prefix'), 'share')
-plugindir = evolutionshell.get_variable(pkgconfig: 'plugindir', default_value: '')
 
-if plugindir == ''
-	plugindir = join_paths(evolutionshell.get_variable(pkgconfig: 'privlibdir'), 'plugins')
-endif
+plugindir = join_paths(evolutionshell.get_variable(
+	pkgconfig: 'privlibdir'), 'plugins')
 
-debugoption = get_option('debugbuild')
-if debugoption == true
+# Debug build
+if get_option('debugbuild') == true
 	add_project_arguments('-DDEBUG', language:'c')
 endif
 
-# GSettings starts here
-schemasoption = get_option('install-schemas')
-if schemasoption == true
+# GSettings
+if get_option('install-schemas') == true
 	install_data('src/org.gnome.evolution.plugin.evolution-tray.gschema.xml',
 		install_dir: get_option('datadir') / 'glib-2.0' / 'schemas' )
-# we're not adding anything to compile any schemas. That is up to packager.  
+	# We're not adding anything to compile any schemas. That's up to the packager. 
 endif
 
 # Generate the config.h file

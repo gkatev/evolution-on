@@ -20,7 +20,7 @@ shared_library('liborg-gnome-evolution-tray',
 		dbusmenuglib,
 	],
 	
-	install_mode: 'rwxr-xr-x',
 	install: true,
-	install_dir: plugindir
+	install_dir: plugindir,
+	install_mode: 'rwxr-xr-x',
 )
