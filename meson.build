@@ -1,6 +1,6 @@
 project('evolution-tray','c',
-	version: '3.24.4',
-	meson_version: '>=0.58.0',
+	version: '3.0.1',
+	meson_version: '>=0.55.0',
 	license: 'GPL',
 	default_options: ['prefix=/usr']
 )
@@ -9,10 +9,10 @@ add_project_arguments('-DHAVE_CONFIG_H', language:'c')
 add_project_arguments('-I.', language:'c')
 
 # Dependecies
-evolutionshell = dependency('evolution-shell-3.0', version: '>=3.6.4')
-evolutionmail  = dependency('evolution-mail-3.0',  version: '>=3.6.0')
-libemailengine = dependency('libemail-engine',     version: '>=3.6.0')
-gtk            = dependency('gtk+-3.0',            version: '>=3.6.0')
+evolutionshell = dependency('evolution-shell-3.0', version: '>=3.55.1')
+evolutionmail  = dependency('evolution-mail-3.0',  version: '>=3.55.1')
+libemailengine = dependency('libemail-engine',     version: '>=3.55.1')
+gtk            = dependency('gtk+-3.0',            version: '>=3.24')
 glib           = dependency('glib-2.0')
 dbusmenuglib   = dependency('dbusmenu-glib-0.4')
 
